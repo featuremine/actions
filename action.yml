@@ -22,6 +22,10 @@ runs:
   - name: Install PyGitHub
     run: pip3 install PyGithub
     shell: bash
+    
+  - uses: de-vri-es/setup-git-credentials@v2
+    with:
+      credentials: https://fm-ci-bot:${{ inputs.utility_token }}@github.com/
 
   # Detect release
   - name: Check if PR is release
