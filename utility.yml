@@ -18,7 +18,7 @@ runs:
   # Detect release
   - name: Check if PR is release
     id: isRelease
-    working-directory: ${{github.workspace}}/.github/workflows
+    working-directory: ${{github.action_path}}
     env: 
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_MERGE_BASE: ${{ github.base_ref }}
