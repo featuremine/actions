@@ -1,9 +1,9 @@
 name: 'Utility action'
 description: 'Check if the PR is intended for release. Format code with clang linter and commit the changes.'
 outputs:
-  isRelease:
+  release-check:
     description: 'Boolean to check if the PR is a release'
-    value: ${{ steps.isRelease.outputs.release }}
+    value: ${{ steps.release-check.outputs.release }}
 runs:
   using: 'composite'    
   steps:
@@ -17,7 +17,7 @@ runs:
 
   # Detect release
   - name: Check if PR is release
-    id: isRelease
+    id: release-check
     working-directory: ${{github.action_path}}
     env: 
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
