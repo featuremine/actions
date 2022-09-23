@@ -14,6 +14,7 @@ runs:
   # Install python wrappers for gh
   - name: Install PyGitHub
     run: pip3 install PyGithub
+    shell: bash
 
   # Detect release
   - name: Check if PR is release
@@ -26,6 +27,7 @@ runs:
       GIT_MERGE_COMMIT: ${{ github.sha }}
       GIT_REPO: ${{ github.repository }}
     run: python3 versioncheck
+    shell: bash
 
   # Code formatting with Clang linter
   - uses: DoozyX/clang-format-lint-action@v0.14
