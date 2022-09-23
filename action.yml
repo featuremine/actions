@@ -43,5 +43,5 @@ runs:
         author_name: CI bot
         author_email: dev@featuremine.com
         message: 'Committing clang-format changes'
-      env:
-        GITHUB_TOKEN: ${{ secrets.UTILITY_COMMIT_TOKEN }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.UTILITY_COMMIT_TOKEN }}
