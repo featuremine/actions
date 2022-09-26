@@ -43,6 +43,14 @@ runs:
     run: echo ${{ inputs.upload }} 
     shell: bash
 
+  - if: ${{ inputs.cpack != '' }} && inputs.upload == 'false'
+    run: echo " 1 inputs.cpack ${{ inputs.cpack }} "
+    shell: bash
+
+  - if: inputs.docs == 'true' && inputs.upload == 'false'
+    run: echo " 2 inputs.docs ${{ inputs.docs }} "
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
       cmake -B ${{github.workspace}}/build
@@ -77,31 +85,31 @@ runs:
     shell: bash
 
   - name: Compress documentation
-    if: ${{ inputs.docs }} == 'true' && ${{ inputs.upload }} == 'true'
+    if: inputs.docs == 'true' && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && tar -czvf docs-v$(cat ../VERSION).tar.gz -C docs/sphinx . 
     shell: bash
     
   - name: Upload documentation
-    if: ${{ inputs.docs }} == 'true' && ${{ inputs.upload }} == 'true'
+    if: inputs.docs == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/docs-v$(cat VERSION).tar.gz --clobber
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack != '' }} && ${{ inputs.upload }} == 'true'
+    if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
   - name: Upload system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack != '' }} && ${{ inputs.upload }} == 'true'
+    if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.$(CPACKEXT=${{ inputs.cpack }} && echo ${CPACKEXT,,}) --clobber
     shell: bash
 
   - name: Upload sh package
-    if: ${{ inputs.upload }} == 'true'
+    if: inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
@@ -110,7 +118,7 @@ runs:
     shell: bash
 
   - name: Upload wheel package
-    if: ${{ inputs.upload }} == 'true'
+    if: inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
