@@ -7,9 +7,6 @@ inputs:
   utility_token:
     description: 'Github token used to commit the changes'
     required: true
-  ci_token:
-    description: 'Github token of fm-ci-bot'
-    required: true
 outputs:
   release-check:
     description: 'Boolean to check if the PR is a release'
@@ -25,10 +22,6 @@ runs:
   - name: Install PyGitHub
     run: pip3 install PyGithub
     shell: bash
-    
-  - uses: de-vri-es/setup-git-credentials@v2
-    with:
-      credentials: https://fm-ci-bot:${{ inputs.ci_token }}@github.com/
 
   # Detect release
   - name: Check if PR is release
