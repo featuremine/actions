@@ -51,6 +51,14 @@ runs:
     run: echo " 2 inputs.docs ${{ inputs.docs }} "
     shell: bash
 
+  - if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
+    run: echo " 3 inputs.cpack ${{ inputs.cpack }} "
+    shell: bash
+
+  - if: inputs.docs == 'true' && inputs.upload == 'true'
+    run: echo " 4 inputs.docs ${{ inputs.docs }} "
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
       cmake -B ${{github.workspace}}/build
