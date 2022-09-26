@@ -79,12 +79,12 @@ runs:
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack }} != '' && ${{ inputs.upload }} == 'true'
+    if: ${{ inputs.cpack != '' }} && ${{ inputs.upload }} == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
   - name: Upload system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack }} != '' && ${{ inputs.upload }} == 'true'
+    if: ${{ inputs.cpack != '' }} && ${{ inputs.upload }} == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.$(CPACKEXT=${{ inputs.cpack }} && echo ${CPACKEXT,,}) --clobber
