@@ -30,10 +30,6 @@ runs:
     with:
       credentials: https://fm-ci-bot:${{ inputs.ci_token }}@github.com/
 
-  - name: Copy versioncheck
-    run: cp ${{github.action_path}}/versioncheck .
-    shell: bash
-
   # Detect release
   - name: Check if PR is release
     id: release-check
@@ -43,7 +39,10 @@ runs:
       GIT_MERGE_HEAD: ${{ github.head_ref }}
       GIT_MERGE_COMMIT: ${{ github.sha }}
       GIT_REPO: ${{ github.repository }}
-    run: python3 versioncheck
+    run: |
+      cp ${{github.action_path}}/versioncheck .
+      python3 versioncheck
+      rm versioncheck
     shell: bash
 
   # Code formatting with Clang linter
