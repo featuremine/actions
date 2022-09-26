@@ -19,9 +19,14 @@ inputs:
 runs:
   using: 'composite'    
   steps:
+  - name: Fix permissions for repository directory
+    run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
   - uses: actions/checkout@main
     with: 
       fetch-depth: 0
+
   - name: Download packages from github release
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
