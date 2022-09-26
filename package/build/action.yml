@@ -1,6 +1,13 @@
 name: 'Build action'
 description: 'Build with CMake'
 inputs:
+  gh_token:
+    description: 'Github token used to upload documentation'
+    required: true
+  yamal_version:
+    description: 'Version of yamal to download and install in the system (e.g. 7.2.18)'
+    required: false
+    default: ''
   build_type:
     description: 'Customize the CMake build type (Release, Debug, RelWithDebInfo, etc.)'
     required: false
@@ -9,6 +16,20 @@ inputs:
     description: '-j option to pass to Cmake'
     required: false
     default: 2
+  cpack:
+    description: 'package type for cpack (RPM or DEB)'
+    required: false
+    default: ''
+  docs:
+    description: 'Build and upload docs'
+    type: boolean
+    required: false
+    default: false
+  upload:
+    description: 'Upload package and docs to github release'
+    type: boolean
+    required: false
+    default: false
 runs:
   using: 'composite'    
   steps:
@@ -21,4 +42,68 @@ runs:
     
   - name: Build ${{ github.event.repository.name }}
     run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    shell: bash
+
+  - name: Build and install yamal for testing
+    if: ${{ inputs.yamal_version }} != ''
+    working-directory: /tmp
+    run: |
+      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      cd yamal
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      cd build && make -j${{ inputs.jobs }} && make install
+    shell: bash
+
+  - name: Install yamal-python for testing
+    if: ${{ inputs.yamal_version }} != ''
+    working-directory: /tmp
+    run: |
+      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
+      cd yamal-python && python3 setup.py install
+    shell: bash
+
+  - name: Test ${{ github.event.repository.name }} with ctest
+    run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
+    shell: bash
+
+  - name: Compress documentation
+    if: ${{ inputs.docs }} == 'true' && ${{ inputs.upload }} == 'true'
+    run: cd ${{github.workspace}}/build && tar -czvf docs-v$(cat ../VERSION).tar.gz -C docs/sphinx . 
+    shell: bash
+    
+  - name: Upload documentation
+    if: ${{ inputs.docs }} == 'true' && ${{ inputs.upload }} == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/docs-v$(cat VERSION).tar.gz --clobber
+    shell: bash
+
+  - name: Build system package ${{ inputs.cpack }}
+    if: ${{ inputs.cpack }} != '' && ${{ inputs.upload }} == 'true'
+    run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
+    shell: bash
+  
+  - name: Upload system package ${{ inputs.cpack }}
+    if: ${{ inputs.cpack }} != '' && ${{ inputs.upload }} == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.$(CPACKEXT=${{ inputs.cpack }} && echo ${CPACKEXT,,}) --clobber
+    shell: bash
+
+  - name: Upload sh package
+    if: ${{ inputs.upload }} == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: >
+      for PKG in ${{github.workspace}}/build/output/*.sh;
+      do gh release upload v$(cat VERSION) ${PKG} --clobber; done
+    shell: bash
+
+  - name: Upload wheel package
+    if: ${{ inputs.upload }} == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: >
+      for PKG in ${{github.workspace}}/build/output/*.whl;
+      do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
