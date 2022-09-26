@@ -85,7 +85,7 @@ runs:
     if: inputs.docs == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-v$(cat ../VERSION)-docs.tar.gz --clobber
+    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-v$(cat VERSION)-docs.tar.gz --clobber
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
