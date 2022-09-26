@@ -78,7 +78,7 @@ runs:
 
   - name: Compress documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
-    run: cd ${{github.workspace}}/build && tar -czvf ${{ github.event.repository.name }}-v$(cat ../VERSION)-docs.tar.gz -C docs/sphinx . 
+    run: cd ${{github.workspace}}/build && tar -czvf ${{ github.event.repository.name }}-v$(cat ${{github.workspace}}/VERSION)-docs.tar.gz -C docs/sphinx . 
     shell: bash
     
   - name: Upload documentation
