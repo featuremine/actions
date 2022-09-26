@@ -33,6 +33,16 @@ inputs:
 runs:
   using: 'composite'    
   steps:
+  - name: TEST true
+    if: ${{ inputs.upload }} == 'true'
+    run: echo ${{ inputs.upload }} 
+    shell: bash
+
+  - name: TEST false
+    if: ${{ inputs.upload }} == 'false'
+    run: echo ${{ inputs.upload }} 
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
       cmake -B ${{github.workspace}}/build
