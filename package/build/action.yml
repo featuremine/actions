@@ -45,7 +45,8 @@ runs:
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
       cmake -B ${{github.workspace}}/build
-      -DBUILD_TESTING=ON -DBUILD_WHEEL=ON -DBUILD_API_DOCS=ON
+      -DBUILD_TESTING=ON -DBUILD_WHEEL=ON
+      -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
     shell: bash
     
