@@ -33,40 +33,6 @@ inputs:
 runs:
   using: 'composite'    
   steps:
-  - name: TEST true
-    if:  inputs.upload == 'true'
-    run: echo ${{ inputs.upload }} 
-    shell: bash
-
-  - name: TEST false
-    if: inputs.upload == 'false'
-    run: echo ${{ inputs.upload }} 
-    shell: bash
-
-  - if: ${{ inputs.cpack != '' }} && inputs.upload == 'false'
-    run: echo " 1 inputs.cpack ${{ inputs.cpack }} "
-    shell: bash
-
-  - if: inputs.docs == 'true' && inputs.upload == 'false'
-    run: echo " 2 inputs.docs ${{ inputs.docs }} "
-    shell: bash
-
-  - if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
-    run: echo " 3 inputs.cpack ${{ inputs.cpack }} "
-    shell: bash
-
-  - if: inputs.docs == 'true' && inputs.upload == 'true'
-    run: echo " 4 inputs.docs ${{ inputs.docs }} "
-    shell: bash
-
-  - if: inputs.cpack != '' && inputs.upload == 'true'
-    run: echo " 5 inputs.cpack ${{ inputs.cpack }} "
-    shell: bash
-
-  - if: inputs.cpack != '' && inputs.upload == 'false'
-    run: echo " 6 inputs.cpack ${{ inputs.cpack }} "
-    shell: bash
-
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
       cmake -B ${{github.workspace}}/build
@@ -113,13 +79,13 @@ runs:
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
+    if: inputs.cpack != '' && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
   - name: Upload system package ${{ inputs.cpack }}
-    if: ${{ inputs.cpack != '' }} && inputs.upload == 'true'
-    env:
+    if: inputs.cpack != '' && inputs.upload == 'true'
+    env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.$(CPACKEXT=${{ inputs.cpack }} && echo ${CPACKEXT,,}) --clobber
     shell: bash
