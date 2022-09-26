@@ -1,0 +1,56 @@
+name: 'Test package action'
+description: 'Download a package from github releases and test it'
+inputs:
+  gh_token:
+    description: 'Github token used to download releases'
+    required: true
+  yamal_version:
+    description: 'Version of yamal to download and install in the system (e.g. 7.2.18)'
+    required: false
+    default: ''
+  build_type:
+    description: 'Customize the CMake build type (Release, Debug, RelWithDebInfo, etc.)'
+    required: false
+    default: 'Release'
+  jobs:
+    description: '-j option to pass to Cmake'
+    required: false
+    default: 2
+runs:
+  using: 'composite'    
+  steps:
+  - name: Download packages from github release
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: |
+      gh release download v$(cat VERSION) -D /opt/packages
+      chmod -R u=rwx /opt/packages
+    shell: bash
+
+  - name: Build and install yamal for testing
+    working-directory: /tmp
+    run: |
+      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      cd yamal
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      cd build && make -j${{ inputs.jobs }} && make install
+    shell: bash
+
+  - name: Install yamal-python for testing
+    if: ${{ inputs.yamal_version != '' }}
+    working-directory: /tmp
+    run: |
+      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
+      cd yamal-python && python3 setup.py install
+    shell: bash
+
+  - name: Install ${{ github.event.repository.name }} fm gcc package
+    run: for PKG in /opt/packages/*.sh; do ${PKG}; done
+
+  - name: Install ${{ github.event.repository.name }} wheel
+    run: for PKG in /opt/packages/*.sh; do pip3 install ${PKG}; done
+    shell: bash
+
+  - name: Run ${{ github.event.repository.name }} Python package tests
+    run: test-${{ github.event.repository.name }}-python
+    shell: bash

@@ -1,5 +1,5 @@
-name: 'Build action'
-description: 'Build with CMake'
+name: 'Build package action'
+description: 'Build with CMake, test with ctest and upload to github releases'
 inputs:
   gh_token:
     description: 'Github token used to upload documentation'
