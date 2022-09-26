@@ -30,17 +30,7 @@ runs:
     with:
       credentials: https://fm-ci-bot:${{ inputs.ci_token }}@github.com/
 
-  - name: Check curr dir
-    run: ls -las
-    shell: bash
-
-  - name: Check action path ${{github.action_path}}
-    working-directory: ${{github.action_path}}
-    run: ls -las
-    shell: bash
-
   - name: Copy versioncheck
-    working-directory: ${{github.action_path}}
     run: cp ${{github.action_path}}/versioncheck .
     shell: bash
 
