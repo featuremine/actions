@@ -7,8 +7,7 @@ from github import Github
 ghrepo = Github(os.getenv('GH_TOKEN')).get_repo(os.getenv('GIT_REPO'))
  
 if __name__ == '__main__':
-    where = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    version =  list(open(path.join(path.join(where, 'VERSION'))))[0].strip()
+    version =  list(open('VERSION'))[0].strip()
     
     draft = False
     for release in ghrepo.get_releases():
