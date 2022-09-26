@@ -17,6 +17,8 @@ runs:
       cmake -B ${{github.workspace}}/build
       -DBUILD_TESTING=ON -DBUILD_WHEEL=ON -DBUILD_API_DOCS=ON
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+    shell: bash
     
   - name: Build ${{ github.event.repository.name }}
     run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    shell: bash
