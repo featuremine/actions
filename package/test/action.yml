@@ -1,0 +1,13 @@
+name: 'Test action'
+description: 'Test with CMake ctest'
+inputs:
+  build_type:
+    description: 'Customize the CMake build type to test (Release, Debug, RelWithDebInfo, etc.)'
+    required: false
+    default: 'Release'
+runs:
+  using: 'composite'    
+  steps:
+  - name: Test ${{ github.event.repository.name }} with ctest
+    run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
+    shell: bash

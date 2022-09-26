@@ -2,7 +2,7 @@ name: 'Build action'
 description: 'Build with CMake'
 inputs:
   build_type:
-    description: 'Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)'
+    description: 'Customize the CMake build type (Release, Debug, RelWithDebInfo, etc.)'
     required: false
     default: 'Release'
   jobs:
