@@ -45,7 +45,7 @@ runs:
     shell: bash
 
   - name: Build and install yamal for testing
-    if: ${{ inputs.yamal_version }} != ''
+    if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
@@ -55,7 +55,7 @@ runs:
     shell: bash
 
   - name: Install yamal-python for testing
-    if: ${{ inputs.yamal_version }} != ''
+    if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
