@@ -19,6 +19,9 @@ inputs:
 runs:
   using: 'composite'    
   steps:
+  - uses: actions/checkout@main
+    with: 
+      fetch-depth: 0
   - name: Download packages from github release
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
@@ -28,6 +31,7 @@ runs:
     shell: bash
 
   - name: Build and install yamal for testing
+    if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
