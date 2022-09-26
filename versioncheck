@@ -6,8 +6,9 @@ from os import path
 from github import Github
 
 def version_file():
-    where = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    return path.join(where, 'VERSION')
+    return 'VERSION'
+    #where = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
+    #return path.join(where, 'VERSION')
 
 class Version(object):
     def __init__(self, version_str):
@@ -32,8 +33,7 @@ def version():
     return Version(list(open(version_file()))[0].strip())
 
 def version_check():
-    res = subprocess.run(['git', 'diff', f'origin/{os.getenv("GIT_MERGE_BASE")}', '--', 'VERSION'], capture_output=True)
-    #res = subprocess.run(['git', 'diff', f'origin/{os.getenv("GIT_MERGE_BASE")}', '--', version_file()], capture_output=True)
+    res = subprocess.run(['git', 'diff', f'origin/{os.getenv("GIT_MERGE_BASE")}', '--', version_file()], capture_output=True)
     assert not res.returncode, f'git diff failed to execute with output\n{res.stderr.decode("UTF-8")}'
     if not res.stdout:
         return None
