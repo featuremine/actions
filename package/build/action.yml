@@ -1,0 +1,22 @@
+name: 'Build action'
+description: 'Build with CMake'
+inputs:
+  build_type:
+    description: 'Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)'
+    required: false
+    default: 'Release'
+  jobs:
+    description: '-j option to pass to Cmake'
+    required: false
+    default: 2
+runs:
+  using: 'composite'    
+  steps:
+  - name: Configure ${{ github.event.repository.name }} CMake
+    run: >
+      cmake -B ${{github.workspace}}/build
+      -DBUILD_TESTING=ON -DBUILD_WHEEL=ON -DBUILD_API_DOCS=ON
+      -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+    
+  - name: Build ${{ github.event.repository.name }}
+    run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
