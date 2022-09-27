@@ -85,7 +85,7 @@ runs:
     if: inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: gh release create --target v$(cat VERSION) --draft
+    run: gh release create v$(cat VERSION) --target dev --draft
     shell: bash
 
   - name: Compress documentation
