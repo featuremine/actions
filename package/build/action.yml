@@ -114,7 +114,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in ${{github.workspace}}/build/output/*.sh;
+      for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
 
@@ -123,6 +123,6 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in ${{github.workspace}}/build/output/*.whl;
+      for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
