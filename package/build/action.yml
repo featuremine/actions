@@ -103,9 +103,9 @@ runs:
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in ${{github.workspace}}/build/output/${{ github.event.repository.name }}-v$(cat VERSION)-Linux.tar.gz
-                 ${{github.workspace}}/build/output/${{ github.event.repository.name }}-v$(cat VERSION)-Linux.deb
-                 ${{github.workspace}}/build/output/${{ github.event.repository.name }}-v$(cat VERSION)-Linux.rpm;
+      for PKG in $(ls ${{github.workspace}}/build/yamal-$(cat VERSION)-Linux.tar.gz
+                      ${{github.workspace}}/build/yamal-$(cat VERSION)-Linux.deb
+                      ${{github.workspace}}/build/yamal-$(cat VERSION)-Linux.rpm 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
 
