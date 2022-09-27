@@ -76,6 +76,11 @@ runs:
     run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
     shell: bash
 
+  - name: Fix permissions for repository directory
+    if: inputs.upload == 'true'
+    run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
   - name: Compress documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
     run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-v$(cat VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
