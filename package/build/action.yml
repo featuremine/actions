@@ -76,13 +76,9 @@ runs:
     run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
     shell: bash
 
-  - name: Test (Delete)
-    run: ls -las && echo $PWD && cat VERSION
-    shell: bash
-
   - name: Compress documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
-    run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-v$(cat ${{github.workspace}}/VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
+    run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-v$(cat VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
     shell: bash
     
   - name: Upload documentation
