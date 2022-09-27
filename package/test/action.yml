@@ -4,6 +4,10 @@ inputs:
   gh_token:
     description: 'Github token used to download releases'
     required: true
+  git_credentials_url:
+    description: 'Github credentials URL with user and token to clone other private repositories'
+    required: false
+    default: ''
   yamal_version:
     description: 'Version of yamal to download and install in the system (e.g. 7.2.18)'
     required: false
@@ -21,6 +25,18 @@ runs:
   steps:
   - name: Fix permissions for repository directory
     run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
+  - uses: de-vri-es/setup-git-credentials@v2
+    if: ${{ inputs.git_credentials_url != '' }}
+    with:
+      credentials: ${{ inputs.git_credentials_url }}
+
+  - name: Download license
+    if: ${{ inputs.git_credentials_url != '' }}
+    working-directory: /tmp
+    run: |
+      git clone --depth 1 https://github.com/featuremine/license
     shell: bash
 
   - uses: actions/checkout@main
@@ -62,5 +78,7 @@ runs:
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
+    env:
+      LICENSE_PATH: /tmp/license/test.lic
     run: test-${{ github.event.repository.name }}-python
     shell: bash
