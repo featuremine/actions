@@ -83,6 +83,8 @@ runs:
 
   - name: Create github release
     if: inputs.upload == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release create --target v$(cat VERSION) --draft
     shell: bash
 
