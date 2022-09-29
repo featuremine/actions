@@ -1,0 +1,44 @@
+name: 'Build and upload wheel'
+description: 'Build with cibuildwheel, test and upload to github releases'
+inputs:
+  gh_token:
+    description: 'Github token used to upload the wheels'
+    required: true
+  test_pypi_token:
+    description: 'Test Pypy token used to test the publish release'
+    required: true
+  upload:
+    description: 'Upload the wheels packages to github release'
+    type: boolean
+    required: false
+    default: false
+runs:
+  using: 'composite'    
+  steps:
+  - name: Run mypy
+    run: mypy --install-types --non-interactive --ignore-missing-imports .
+      
+  - name: Build wheels
+    env:
+      CIBW_BUILD: "{cp36-manylinux_x86_64,cp37-manylinux_x86_64,cp38-manylinux_x86_64,cp39-manylinux_x86_64,cp310-manylinux_x86_64}"
+    run: python3 -m cibuildwheel --output-dir wheelhouse
+
+  - name: test wheel
+    run: |
+      pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*.whl
+      test-${{ github.event.repository.name }}
+
+  - name: Publish to testpypi
+    if: inputs.upload == 'true'
+    run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} wheelhouse/*.whl
+
+  - name: Fix permissions for repository directory
+    if: inputs.upload == 'true'
+    run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
+  - name: Upload wheels
+    if: inputs.upload == 'true'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: gh release upload v$(cat VERSION) ./wheelhouse/*.whl --clobber
