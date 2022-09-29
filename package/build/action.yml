@@ -44,21 +44,21 @@ runs:
 
   - name: Configure ${{ github.event.repository.name }} CMake
     run: >
-      cmake -B ${{github.workspace}}/build
+      cmake -B "${{runner.temp}}/build"
       -DBUILD_TESTING=ON -DBUILD_WHEEL=ON
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
-    run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    run: cmake --build "${{runner.temp}}/build" --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
     shell: bash
 
   - name: Build and install yamal for testing
     if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      git clone --depth 1 -b "v${{ inputs.yamal_version }}" https://github.com/featuremine/yamal.git
       cd yamal
       cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
       cd build && make -j${{ inputs.jobs }} && make install
@@ -73,7 +73,7 @@ runs:
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest
-    run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
+    run: cd "${{runner.temp}}/build" && ctest --extra-verbose -C ${{ inputs.build_type }}
     shell: bash
 
   - name: Fix permissions for repository directory
@@ -83,19 +83,19 @@ runs:
 
   - name: Compress documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
-    run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
+    run: tar -czvf "${{runner.temp}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz" -C "${{runner.temp}}/build/docs/sphinx" .
     shell: bash
     
   - name: Upload documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber
+    run: gh release upload v$(cat VERSION) "${{runner.temp}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz" --clobber
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
     if: inputs.cpack != '' && inputs.upload == 'true'
-    run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
+    run: cd "${{runner.temp}}/build" && cpack -G ${{ inputs.cpack }}
     shell: bash
   
   - name: Upload system package ${{ inputs.cpack }}
@@ -103,9 +103,9 @@ runs:
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.tar.gz
-                      ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.deb
-                      ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.rpm 2>/dev/null);
+      for PKG in $(ls "${{runner.temp}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.tar.gz"
+                      "${{runner.temp}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.deb"
+                      "${{runner.temp}}/build/${{ github.event.repository.name }}-$(cat VERSION)-Linux.rpm" 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
 
@@ -114,7 +114,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
+      for PKG in $(ls "${{runner.temp}}/build/output/*.sh" 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
 
@@ -123,6 +123,6 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
+      for PKG in $(ls "${{runner.temp}}/build/output/*.whl" 2>/dev/null);
       do gh release upload v$(cat VERSION) ${PKG} --clobber; done
     shell: bash
