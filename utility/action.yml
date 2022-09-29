@@ -55,6 +55,7 @@ runs:
 
   # Commit clang-format changes
   - uses: EndBug/add-and-commit@v4
+    if: steps.check-format.outputs.format == 'true'
     with:
         author_name: CI bot
         author_email: dev@featuremine.com
