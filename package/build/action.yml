@@ -43,6 +43,8 @@ runs:
       credentials: ${{ inputs.git_credentials_url }}
 
   - name: Configure ${{ github.event.repository.name }} CMake
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       cmake -B ${{github.workspace}}/build
       -DBUILD_TESTING=ON -DBUILD_WHEEL=ON
@@ -51,6 +53,8 @@ runs:
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
     shell: bash
 
@@ -73,6 +77,8 @@ runs:
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
     shell: bash
 
