@@ -42,6 +42,7 @@ runs:
     id: check-format
     run: |
       find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "::set-output name=format::true" || echo "::set-output name=format::false"
+    shell: bash
 
   # Code formatting with Clang linter
   - uses: DoozyX/clang-format-lint-action@v0.14
