@@ -29,6 +29,11 @@ inputs:
     type: boolean
     required: false
     default: false
+  wheel:
+    description: 'Build and upload the wheel'
+    type: boolean
+    required: false
+    default: true
   upload:
     description: 'Upload package and docs to github release'
     type: boolean
@@ -47,7 +52,8 @@ runs:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       cmake -B ${{github.workspace}}/build
-      -DBUILD_TESTING=ON -DBUILD_WHEEL=ON
+      -DBUILD_TESTING=ON
+      -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
     shell: bash
@@ -125,7 +131,7 @@ runs:
     shell: bash
 
   - name: Upload wheel package
-    if: inputs.upload == 'true'
+    if: inputs.wheel == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
