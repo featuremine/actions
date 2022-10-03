@@ -4,6 +4,10 @@ inputs:
   gh_token:
     description: 'Github token used to upload package'
     required: true
+outputs:
+  draft-check:
+    description: 'Boolean to check if the release draft exists'
+    value: ${{ steps.draft-check.outputs.draft }}
 runs:
   using: 'composite'    
   steps:
@@ -16,7 +20,7 @@ runs:
     shell: bash
 
   - name: Check if draft exists
-    id: check-draft
+    id: draft-check
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
       GIT_REPO: ${{ github.repository }}
@@ -27,7 +31,7 @@ runs:
     shell: bash
 
   - name: Publish
-    if: steps.check-draft.outputs.draft == 'true' && github.event.pull_request.merged == true
+    if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release edit v$(cat VERSION) --draft=false
