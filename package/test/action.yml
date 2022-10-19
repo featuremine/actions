@@ -70,11 +70,15 @@ runs:
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
-    run: for PKG in /opt/packages/*.sh; do ${PKG}; done
+    run: >
+      for PKG in $(ls /opt/packages/*.sh 2>/dev/null);
+      do ${PKG}; done
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} wheel
-    run: for PKG in /opt/packages/*.whl; do pip3 install ${PKG}; done
+    run: >
+      for PKG in $(ls /opt/packages/*.whl 2>/dev/null);
+      do pip3 install ${PKG}; done
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
