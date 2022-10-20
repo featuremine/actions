@@ -72,17 +72,24 @@ runs:
   - name: Install ${{ github.event.repository.name }} fm gcc package
     run: >
       for PKG in $(ls /opt/packages/*.sh 2>/dev/null);
-      do ${PKG}; done
+        do ${PKG};
+      done
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} wheel
     run: >
       for PKG in $(ls /opt/packages/*.whl 2>/dev/null);
-      do pip3 install ${PKG}; done
+        do pip3 install ${PKG};
+      done
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
     env:
       LICENSE_PATH: /tmp/license/test.lic
-    run: test-${{ github.event.repository.name }}-python
+    run: >
+      for DIR in $(echo "$PATH" | tr : " ");
+        do for TEST in $(ls $DIR/test-${{ github.event.repository.name }}* 2>/dev/null);
+          do $TEST;
+        done;
+      done;
     shell: bash
