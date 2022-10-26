@@ -34,7 +34,7 @@ runs:
 
   - name: test wheel
     run: |
-      pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*manylinux*x86_64*.whl
+      pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*manylinux*$(uname -m)*.whl
       test-${{ github.event.repository.name }}
     shell: bash
 
