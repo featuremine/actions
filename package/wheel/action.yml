@@ -18,16 +18,23 @@ runs:
   - name: Run mypy
     run: mypy --install-types --non-interactive --ignore-missing-imports .
     shell: bash
-      
+
+  - name: Set up QEMU
+    if: runner.os == 'Linux'
+    uses: docker/setup-qemu-action@v2
+    with:
+      platforms: all
+
   - name: Build wheels
+    uses: pypa/cibuildwheel@v2.11.1
     env:
-      CIBW_BUILD: "{cp36-manylinux_x86_64,cp37-manylinux_x86_64,cp38-manylinux_x86_64,cp39-manylinux_x86_64,cp310-manylinux_x86_64}"
-    run: python3 -m cibuildwheel --output-dir wheelhouse
-    shell: bash
+      CIBW_ARCHS_MACOS: x86_64 arm64
+      CIBW_ARCHS_LINUX: x86_64 aarch64
+      CIBW_SKIP: cp311-* pp* *-musllinux*
 
   - name: test wheel
     run: |
-      pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*.whl
+      pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*manylinux*$(uname -m)*.whl
       test-${{ github.event.repository.name }}
     shell: bash
 
