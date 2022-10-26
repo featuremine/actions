@@ -22,7 +22,7 @@ runs:
   - name: Build wheels
     env:
       CIBW_BUILD: "*-manylinux_x86_64 *-manylinux_aarch64 *-macosx_x86_64 *-macosx_arm64"
-      CIBW_SKIP: cp311-*
+      CIBW_SKIP: cp311-* pp*
     run: python3 -m cibuildwheel --output-dir wheelhouse
     shell: bash
 
