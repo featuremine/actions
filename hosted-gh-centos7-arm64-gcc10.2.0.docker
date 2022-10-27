@@ -32,7 +32,6 @@ ENV CC /opt/$GCC_NAME/bin/gcc
 # dependencies
 RUN yum -y remove git && \
     yum -y remove git-* && \
-    yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && \
     yum install -y git \
     curl autoconf automake pkgconfig graphviz doxygen libstdc++-static \
     wget git python3-devel zlib-devel python3 rpm-build python3-sphinx
@@ -42,10 +41,10 @@ RUN python3 -m pip install --upgrade pip && \
     breathe sphinx_rtd_theme mistune==0.8.4 m2r sphinx-autodoc-typehints
 
 RUN mkdir /actions-runner && cd /actions-runner && \
-    curl -o actions-runner-linux-x64-2.296.2.tar.gz -L https://github.com/actions/runner/releases/download/v2.296.2/actions-runner-linux-x64-2.296.2.tar.gz && \
-    tar xzf ./actions-runner-linux-x64-2.296.2.tar.gz && \
+    curl -o actions-runner-linux-arm64-2.296.2.tar.gz -L https://github.com/actions/runner/releases/download/v2.296.2/actions-runner-linux-arm64-2.296.2.tar.gz && \
+    tar xzf ./actions-runner-linux-arm64-2.296.2.tar.gz && \
     ./bin/installdependencies.sh && \
-    rm -f /actions-runner/actions-runner-linux-x64-2.296.2.tar.gz
+    rm -f /actions-runner/actions-runner-linux-arm64-2.296.2.tar.gz
 
 RUN cd /tmp && \
     wget --no-check-certificate https://capnproto.org/capnproto-c++-0.9.0.tar.gz && \
@@ -57,11 +56,11 @@ RUN cd /tmp && \
     LDFLAGS="-static-libstdc++ -static-libgcc" pip3 install pycapnp --no-cache-dir
 
 RUN cd /tmp && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.tar.gz && \
-    tar xvzf cmake-3.21.0-linux-x86_64.tar.gz && \
-    cp /tmp/cmake-3.21.0-linux-x86_64/bin/* /usr/bin/ && \
-    cp -r /tmp/cmake-3.21.0-linux-x86_64/share/* /usr/share/ && \
-    rm -rf /tmp/cmake-3.21.0-linux-x86_64 /tmp/cmake-3.21.0-linux-x86_64.tar.gz
+    wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-aarch64.tar.gz && \
+    tar xvzf cmake-3.21.0-linux-aarch64.tar.gz && \
+    cp /tmp/cmake-3.21.0-linux-aarch64/bin/* /usr/bin/ && \
+    cp -r /tmp/cmake-3.21.0-linux-aarch64/share/* /usr/share/ && \
+    rm -rf /tmp/cmake-3.21.0-linux-aarch64 /tmp/cmake-3.21.0-linux-aarch64.tar.gz
 
 RUN cd /tmp && \
     git clone --depth 1 https://github.com/google/googletest.git -b release-1.11.0 && \
