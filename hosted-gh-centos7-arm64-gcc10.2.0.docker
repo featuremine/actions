@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 centos:7
+FROM arm64v8/centos:7
 ENV container docker
 
 # dependencies
