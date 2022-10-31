@@ -73,7 +73,10 @@ runs:
     run: >
       for PKG in $(ls /opt/packages/*.sh 2>/dev/null);
         do ${PKG};
-      done
+      done;
+      for PKG in $(ls /opt/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
+        do tar xvzfk ${PKG} -C /;
+      done;
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} wheel
