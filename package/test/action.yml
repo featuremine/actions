@@ -75,7 +75,7 @@ runs:
         do ${PKG};
       done;
       for PKG in $(ls /opt/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
-        do tar xvzf ${PKG} -C /;
+        do tar xvzfk ${PKG} -C /;
       done;
     shell: bash
 
