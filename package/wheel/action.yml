@@ -29,7 +29,7 @@ runs:
     env:
       CIBW_ARCHS_MACOS: x86_64 arm64
       CIBW_ARCHS_LINUX: x86_64 aarch64
-      CIBW_SKIP: cp311-* pp* *-musllinux*
+      CIBW_SKIP: cp311-* cp36-* cp37-* p38-* pp* *-musllinux*
 
   - name: test wheel
     run: |
