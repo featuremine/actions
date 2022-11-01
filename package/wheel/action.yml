@@ -15,9 +15,7 @@ inputs:
 runs:
   using: 'composite'    
   steps:
-  - name: Run mypy
-    run: mypy --install-types --non-interactive --ignore-missing-imports .
-    shell: bash
+  - uses: tsuyoshicho/action-mypy@v3
 
   - name: Set up QEMU
     if: runner.os == 'Linux'
@@ -31,11 +29,17 @@ runs:
       CIBW_ARCHS_MACOS: x86_64 arm64
       CIBW_ARCHS_LINUX: x86_64 aarch64
       CIBW_SKIP: cp311-* pp* *-musllinux*
+      CIBW_BEFORE_BUILD: python3 -m pip install -r requirements.txt
 
   - name: test wheel
     run: |
       pip3 install wheelhouse/*-$(python3 -c "from sys import version_info as v; print(f'cp{v.major}{v.minor}');")*manylinux*$(uname -m)*.whl
       test-${{ github.event.repository.name }}
+    shell: bash
+
+  - name: Install twine
+    if: inputs.upload == 'true'
+    run: pip3 install twine
     shell: bash
 
   - name: Publish to testpypi
