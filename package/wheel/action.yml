@@ -29,15 +29,8 @@ runs:
     env:
       CIBW_ARCHS_MACOS: x86_64 arm64
       CIBW_ARCHS_LINUX: x86_64 aarch64
-      CIBW_SKIP: cp311-* cp36-* cp37-* p38-* pp* *-musllinux*
+      CIBW_SKIP: cp311-* pp* *-musllinux*
       CIBW_BEFORE_BUILD: python3 -m pip install -r requirements.txt
-      CIBW_BEFORE_BUILD_LINUX: >
-        python3 -m pip install -r requirements.txt &&
-        ls -las /opt/_internal/cpython-3.8.15/lib/ &&
-        ls -las /opt/_internal/cpython-3.8.15/lib/python3.8/ &&
-        ls -las /opt/_internal/cpython-3.8.15/lib/pkgconfig &&
-        cat /opt/_internal/cpython-3.8.15/lib/pkgconfig/python3.pc &&
-        cat /opt/_internal/cpython-3.8.15/lib/pkgconfig/python3-embed.pc
 
   - name: test wheel
     run: |
