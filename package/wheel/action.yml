@@ -35,7 +35,8 @@ runs:
         python3 -m pip install -r requirements.txt &&
         ls -las /opt/_internal/cpython-3.8.15/lib/ &&
         ls -las /opt/_internal/cpython-3.8.15/lib/python3.8/ &&
-        ls -las /opt/_internal/cpython-3.8.15/lib/pkgconfig
+        ls -las /opt/_internal/cpython-3.8.15/lib/pkgconfig &&
+        cat /opt/_internal/cpython-3.8.15/lib/pkgconfig/python3.pc
 
   - name: test wheel
     run: |
