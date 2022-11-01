@@ -31,7 +31,9 @@ runs:
       CIBW_ARCHS_LINUX: x86_64 aarch64
       CIBW_SKIP: cp311-* cp36-* cp37-* p38-* pp* *-musllinux*
       CIBW_BEFORE_BUILD: python3 -m pip install -r requirements.txt
-      CIBW_BEFORE_BUILD_LINUX: yum install -y python3-devel
+      CIBW_BEFORE_BUILD_LINUX: >
+        python3 -m pip install -r requirements.txt &&
+        yum install -y python3-devel
 
   - name: test wheel
     run: |
