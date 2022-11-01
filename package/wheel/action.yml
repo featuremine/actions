@@ -33,7 +33,7 @@ runs:
       CIBW_BEFORE_BUILD: python3 -m pip install -r requirements.txt
       CIBW_BEFORE_BUILD_LINUX: >
         python3 -m pip install -r requirements.txt &&
-        yum install -y python3-devel
+        /opt/_internal/cpython-3.8.15/lib/
 
   - name: test wheel
     run: |
