@@ -39,6 +39,10 @@ inputs:
     type: boolean
     required: false
     default: false
+  test_pypi_token:
+    description: 'Test Pypi token used to test the publish release'
+    required: false
+    default: ''
 runs:
   using: 'composite'    
   steps:
@@ -50,6 +54,9 @@ runs:
   - name: Install Python requirements
     run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
     shell: bash
+
+  - if: inputs.wheel == 'true'
+    uses: tsuyoshicho/action-mypy@v3
 
   - name: Configure ${{ github.event.repository.name }} CMake
     env:
@@ -95,6 +102,16 @@ runs:
   - name: Fix permissions for repository directory
     if: inputs.upload == 'true'
     run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
+  - name: Install twine
+    if: inputs.test_pypi_token != '' && inputs.upload == 'true'
+    run: pip3 install twine
+    shell: bash
+
+  - name: Publish to testpypi
+    if: inputs.test_pypi_token != '' && inputs.upload == 'true'
+    run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} ${{github.workspace}}/build/output/*.whl
     shell: bash
 
   - name: Compress documentation
