@@ -51,17 +51,9 @@ runs:
     with:
       credentials: ${{ inputs.git_credentials_url }}
 
-  - if: inputs.wheel == 'true' && runner.os == 'macOS'
-    uses: actions/setup-python@v4
-    with:
-      python-version: '3.6'
-
   - name: Install Python requirements
     run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
     shell: bash
-
-  - if: inputs.wheel == 'true'
-    uses: tsuyoshicho/action-mypy@v3
 
   - name: Configure ${{ github.event.repository.name }} CMake
     env:
