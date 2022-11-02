@@ -51,10 +51,10 @@ runs:
     with:
       credentials: ${{ inputs.git_credentials_url }}
 
-  - if: inputs.wheel == 'true'
+  - if: inputs.wheel == 'true' && runner.os == 'macOS'
     uses: actions/setup-python@v4
     with:
-      python-version: '3.6.8'
+      python-version: '3.6'
 
   - name: Install Python requirements
     run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
