@@ -44,7 +44,7 @@ inputs:
     required: false
     default: ''
 runs:
-  using: 'composite'    
+  using: 'composite'
   steps:
   - uses: de-vri-es/setup-git-credentials@v2
     if: ${{ inputs.git_credentials_url != '' }}
