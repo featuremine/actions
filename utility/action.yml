@@ -7,6 +7,11 @@ inputs:
   utility_token:
     description: 'Github token used to commit the changes'
     required: true
+  mypy:
+    description: 'Check Python files with mypy'
+    type: boolean
+    required: false
+    default: false
 outputs:
   release-check:
     description: 'Boolean to check if the PR is a release'
@@ -37,6 +42,9 @@ runs:
       python3 versioncheck
       rm versioncheck
     shell: bash
+
+  - uses: tsuyoshicho/action-mypy@v3
+    if: inputs.mypy == 'true'
 
   - name: Validate if clang format is required
     id: check-format
