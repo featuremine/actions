@@ -81,7 +81,7 @@ runs:
 
   - name: Install ${{ github.event.repository.name }} wheel
     run: >
-      for PKG in $(ls /opt/packages/*.whl 2>/dev/null);
+      for PKG in $(ls /opt/packages/*-$(if [[ $OSTYPE =~ "linux" ]]; then echo manylinux; elif [[ $OSTYPE =~ "darwin" ]]; then echo macosx; fi)*$(uname -m)*.whl 2>/dev/null);
         do pip3 install ${PKG};
       done
     shell: bash

@@ -39,8 +39,12 @@ inputs:
     type: boolean
     required: false
     default: false
+  test_pypi_token:
+    description: 'Test Pypi token used to test the publish release'
+    required: false
+    default: ''
 runs:
-  using: 'composite'    
+  using: 'composite'
   steps:
   - uses: de-vri-es/setup-git-credentials@v2
     if: ${{ inputs.git_credentials_url != '' }}
@@ -95,6 +99,16 @@ runs:
   - name: Fix permissions for repository directory
     if: inputs.upload == 'true'
     run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+    shell: bash
+
+  - name: Install twine
+    if: inputs.test_pypi_token != '' && inputs.upload == 'true'
+    run: pip3 install twine
+    shell: bash
+
+  - name: Publish to testpypi
+    if: inputs.test_pypi_token != '' && inputs.upload == 'true'
+    run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} ${{github.workspace}}/build/output/*.whl
     shell: bash
 
   - name: Compress documentation
