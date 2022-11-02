@@ -51,6 +51,9 @@ runs:
     with:
       credentials: ${{ inputs.git_credentials_url }}
 
+  - if: inputs.wheel == 'true'
+    uses: actions/setup-python@v4
+
   - name: Install Python requirements
     run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
     shell: bash
