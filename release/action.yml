@@ -15,9 +15,9 @@ outputs:
 runs:
   using: 'composite'    
   steps:
-  - uses: actions/checkout@main
-    with: 
-      fetch-depth: 0
+  #- uses: actions/checkout@main
+  #  with: 
+  #    fetch-depth: 0
 
   - name: Install PyGitHub
     run: pip3 install PyGithub
