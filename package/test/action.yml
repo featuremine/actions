@@ -20,9 +20,17 @@ inputs:
     description: '-j option to pass to Cmake'
     required: false
     default: 2
+  sudo:
+    description: 'need sudo to install packages on root directories'
+    required: false
+    default: false
 runs:
   using: 'composite'    
   steps:
+  - name: Set sudo prefix
+    run: echo "SUDO_PREFIX=$(if ${{ inputs.sudo }}; then echo "sudo "; else echo ""; fi;)" >> $GITHUB_ENV
+    shell: bash
+
   - name: Fix permissions for repository directory
     run: git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
     shell: bash
@@ -58,7 +66,7 @@ runs:
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
       cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
-      cd build && make -j${{ inputs.jobs }} && sudo make install
+      cd build && make -j${{ inputs.jobs }} && ${SUDO_PREFIX}make install
     shell: bash
 
   - name: Install yamal-python for testing
@@ -72,11 +80,11 @@ runs:
   - name: Install ${{ github.event.repository.name }} fm gcc package
     run: >
       for PKG in $(ls /opt/packages/*.sh 2>/dev/null);
-        do sudo ${PKG};
+        do ${SUDO_PREFIX}${PKG};
       done;
       for PKG in $(ls /opt/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
-        do sudo tar xvzfk ${PKG} -C / && 
-        sudo tar xvzfk ${PKG} -C /usr/lib lib64 --strip-components=1;
+        do ${SUDO_PREFIX}tar xvzfk ${PKG} -C / && 
+        ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/lib lib64 --strip-components=1;
       done;
     shell: bash
 
