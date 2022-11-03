@@ -75,7 +75,8 @@ runs:
         do sudo ${PKG};
       done;
       for PKG in $(ls /opt/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
-        do sudo tar xvzfk ${PKG} -C /;
+        do sudo tar xvzfk ${PKG} -C / && 
+        sudo tar xvzfk ${PKG} lib64 -C /usr/local/lib;
       done;
     shell: bash
 
