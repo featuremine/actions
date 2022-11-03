@@ -87,8 +87,8 @@ runs:
         do ${SUDO_PREFIX}${PKG};
       done;
       for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
-        do ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr && 
-        ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/lib lib64 --strip-components=1;
+        do ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/local && 
+        ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/local/lib lib64 --strip-components=1;
       done;
     shell: bash
 
