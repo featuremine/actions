@@ -85,6 +85,14 @@ runs:
     run: ls -las /usr/local/lib/libextractor.so && ls -las /usr/lib/libextractor.so
     shell: bash
 
+  - name: Test ldd 1 
+    run: ldd /home/runner/.local/lib/python3.8/site-packages/extractor/extractor.so && ldd /home/runner/.local/lib/python3.8/site-packages/extractor/libextractor.so
+    shell: bash
+
+  - name: Test ldd 2
+    run: ldd /lib64/libextractor.so
+    shell: bash
+
   - name: Install ${{ github.event.repository.name }} wheel
     run: >
       for PKG in $(ls /opt/packages/*-$(if [[ $OSTYPE =~ "linux" ]]; then echo manylinux; elif [[ $OSTYPE =~ "darwin" ]]; then echo macosx; fi)*$(uname -m)*.whl 2>/dev/null);
