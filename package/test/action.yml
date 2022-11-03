@@ -77,13 +77,12 @@ runs:
       for PKG in $(ls /opt/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
         do sudo tar xvzfk ${PKG} -C / && 
         sudo tar xvzfk ${PKG} -C /usr/local/lib lib64 --strip-components=1 &&
-        sudo tar xvzfk ${PKG} -C /usr/lib lib64 --strip-components=1 &&
-        sudo tar xvzfk ${PKG} -C /lib lib64 --strip-components=1;
+        sudo tar xvzfk ${PKG} -C /usr/lib lib64 --strip-components=1;
       done;
     shell: bash
 
   - name: Test lib
-    run: ls -las /usr/local/lib/libextractor.so && ls -las /usr/lib/libextractor.so  && ls -las /lib/libextractor.so 
+    run: ls -las /usr/local/lib/libextractor.so && ls -las /usr/lib/libextractor.so
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} wheel
