@@ -87,7 +87,7 @@ runs:
         do ${SUDO_PREFIX}${PKG};
       done;
       for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
-        do ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/;
+        do ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/$(if [[ $OSTYPE =~ "linux" ]]; then echo ""; elif [[ $OSTYPE =~ "darwin" ]]; then echo local; fi);
       done;
     shell: bash
 
