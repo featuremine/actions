@@ -51,6 +51,10 @@ runs:
     with: 
       fetch-depth: 0
 
+  - name: Install Python requirements
+    run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+    shell: bash
+
   - name: Download packages from github release
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
