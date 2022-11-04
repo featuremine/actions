@@ -78,7 +78,10 @@ runs:
     working-directory: /tmp
     run: |
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
-      cd yamal-python && pip3 install .
+      cd yamal-python
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      cd build && make -j${{ inputs.jobs }}
+      pip3 install output/*.whl
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
