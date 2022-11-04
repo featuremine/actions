@@ -78,7 +78,7 @@ runs:
     working-directory: /tmp
     run: |
       git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
-      cd yamal-python && python3 setup.py install
+      cd yamal-python && pip3 install .
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
