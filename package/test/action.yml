@@ -24,6 +24,10 @@ inputs:
     description: 'need sudo to install packages on root directories'
     required: false
     default: false
+  test_script:
+    description: 'the test script name to run'
+    required: false
+    default: ''
 runs:
   using: 'composite'    
   steps:
@@ -106,7 +110,20 @@ runs:
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
+    if: ${{ inputs.test_script != '' }}
     env:
       LICENSE_PATH: /tmp/license/test.lic
-    run: test-extractor-python
+    run: ${{ inputs.test_script }}
+    shell: bash
+
+  - name: Run ${{ github.event.repository.name }} Python package tests
+    if: ${{ inputs.test_script == '' }}
+    env:
+      LICENSE_PATH: /tmp/license/test.lic
+    run: >
+      for DIR in $(echo "$PATH" | tr : " ");
+        do for TEST in $(ls $DIR/test-${{ github.event.repository.name }}* 2>/dev/null);
+          do $TEST;
+        done;
+      done;
     shell: bash
