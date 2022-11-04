@@ -101,7 +101,7 @@ runs:
   - name: Patch ${{ github.event.repository.name }} wheel
     run: >
       for PKG in $(ls /tmp/packages/*-$(if [[ $OSTYPE =~ "linux" ]]; then echo manylinux; elif [[ $OSTYPE =~ "darwin" ]]; then echo macosx; fi)*$(uname -m)*.whl 2>/dev/null);
-        do if [[ $OSTYPE =~ "darwin" ]]; mv "$PKG" "$(echo "$PKG" | sed s/11_0/10_9/)"; fi;
+        do if [[ $OSTYPE =~ "darwin" ]]; then mv "$PKG" "$(echo "$PKG" | sed s/11_0/10_9/)"; fi;
       done
     shell: bash
 
