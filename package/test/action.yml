@@ -97,17 +97,16 @@ runs:
   - name: Install ${{ github.event.repository.name }} wheel
     run: >
       for PKG in $(ls /tmp/packages/*-$(if [[ $OSTYPE =~ "linux" ]]; then echo manylinux; elif [[ $OSTYPE =~ "darwin" ]]; then echo macosx; fi)*$(uname -m)*.whl 2>/dev/null);
-        do ${SUDO_PREFIX}pip3 install ${PKG};
+        do ${SUDO_PREFIX}pip3 install ${PKG} --verbose ;
       done
+    shell: bash
+
+  - name: test
+    run: pip3 show -f extractor && export
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
     env:
       LICENSE_PATH: /tmp/license/test.lic
-    run: >
-      for DIR in $(echo "$PATH" | tr : " ");
-        do for TEST in $(ls $DIR/test-${{ github.event.repository.name }}* 2>/dev/null);
-          do $TEST;
-        done;
-      done;
+    run: test-extractor-python
     shell: bash
