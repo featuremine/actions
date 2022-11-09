@@ -71,20 +71,10 @@ runs:
     if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_TOOLS=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && ${SUDO_PREFIX}make install
-    shell: bash
-
-  - name: Install yamal-python for testing
-    if: ${{ inputs.yamal_version != '' }}
-    working-directory: /tmp
-    run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
-      cd yamal-python
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
-      cd build && make -j${{ inputs.jobs }}
       pip3 install output/*.whl
     shell: bash
 
