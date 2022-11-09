@@ -52,7 +52,7 @@ runs:
       credentials: ${{ inputs.git_credentials_url }}
 
   - name: Install Python requirements
-    run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+    run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
     shell: bash
 
   - name: Configure ${{ github.event.repository.name }} CMake
