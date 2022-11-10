@@ -56,7 +56,7 @@ runs:
       fetch-depth: 0
 
   - name: Install Python requirements
-    run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+    run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
     shell: bash
 
   - name: Download packages from github release
@@ -73,6 +73,7 @@ runs:
     run: |
       git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
+      for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
       cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && ${SUDO_PREFIX}make install
       pip3 install output/*.whl
