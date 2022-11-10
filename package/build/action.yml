@@ -78,7 +78,7 @@ runs:
     run: |
       git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_TOOLS=OFF -DBUILD_WHEEL=ON
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && make install
       pip3 install output/*.whl
     shell: bash
