@@ -81,7 +81,7 @@ runs:
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
     run: >
-      for PKG in $(ls /tmp/packages/*.sh 2>/dev/null);
+      for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).sh 2>/dev/null);
         do ${SUDO_PREFIX}${PKG};
       done;
       for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
