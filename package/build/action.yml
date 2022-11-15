@@ -85,10 +85,6 @@ runs:
       pip3 install output/*.whl --verbose
     shell: bash
 
-  - name: Test find program
-    run: find / -name yamal-run.py
-    shell: bash
-
   - name: Test ${{ github.event.repository.name }} with ctest
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
