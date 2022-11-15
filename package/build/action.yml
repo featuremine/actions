@@ -64,6 +64,7 @@ runs:
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+      -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
@@ -76,21 +77,12 @@ runs:
     if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && make install
-    shell: bash
-
-  - name: Install yamal-python for testing
-    if: ${{ inputs.yamal_version != '' }}
-    working-directory: /tmp
-    run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
-      cd yamal-python
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
-      cd build && make -j${{ inputs.jobs }}
-      pip3 install output/*.whl
+      pip3 install output/*.whl --verbose
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest

@@ -56,7 +56,7 @@ runs:
       fetch-depth: 0
 
   - name: Install Python requirements
-    run: if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+    run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
     shell: bash
 
   - name: Download packages from github release
@@ -71,26 +71,18 @@ runs:
     if: ${{ inputs.yamal_version != '' }}
     working-directory: /tmp
     run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
+      git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
       cd yamal
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
+      for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
+      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && ${SUDO_PREFIX}make install
-    shell: bash
-
-  - name: Install yamal-python for testing
-    if: ${{ inputs.yamal_version != '' }}
-    working-directory: /tmp
-    run: |
-      git clone --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal-python.git
-      cd yamal-python
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF
-      cd build && make -j${{ inputs.jobs }}
-      pip3 install output/*.whl
+      if [[ $OSTYPE =~ "darwin" ]]; then mv output/*.whl "$(echo output/*.whl | sed s/[0-9][0-9]_0/10_9/)"; fi;
+      pip3 install output/*.whl --verbose
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
     run: >
-      for PKG in $(ls /tmp/packages/*.sh 2>/dev/null);
+      for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).sh 2>/dev/null);
         do ${SUDO_PREFIX}${PKG};
       done;
       for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
@@ -109,7 +101,10 @@ runs:
     run: >
       for PKG in $(ls /tmp/packages/*-$(if [[ $OSTYPE =~ "linux" ]]; then echo manylinux; elif [[ $OSTYPE =~ "darwin" ]]; then echo macosx; fi)*$(uname -m)*.whl 2>/dev/null);
         do pip3 install ${PKG} --verbose;
-      done
+      done;
+      for PKG in $(ls /tmp/packages/*-py3-none-any.whl 2>/dev/null);
+        do pip3 install ${PKG} --verbose;
+      done;
     shell: bash
 
   - name: Run ${{ github.event.repository.name }} Python package tests
