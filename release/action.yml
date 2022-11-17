@@ -28,6 +28,9 @@ runs:
     id: draft-check
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
+      GIT_MERGE_BASE: ${{ github.base_ref }}
+      GIT_MERGE_HEAD: ${{ github.head_ref }}
+      GIT_MERGE_COMMIT: ${{ github.sha }}
       GIT_REPO: ${{ github.repository }}
     run: |
       cp ${{github.action_path}}/draftcheck .
