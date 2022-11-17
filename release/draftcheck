@@ -5,7 +5,7 @@ from os import path
 from github import Github
 
 ghrepo = Github(os.getenv('GH_TOKEN')).get_repo(os.getenv('GIT_REPO'))
- 
+
 if __name__ == '__main__':
     version =  list(open('VERSION'))[0].strip()
     
@@ -20,3 +20,5 @@ if __name__ == '__main__':
         print("::set-output name=draft::true")
     else:
         print("no matching draft found; not publishing the release")
+
+    print(f"::set-output name=merge_base::{os.getenv('GIT_MERGE_BASE')}")

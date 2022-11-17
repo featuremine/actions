@@ -36,21 +36,21 @@ runs:
     shell: bash
 
   - name: Publish
-    if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
+    if: steps.draft-check.outputs.draft == 'true' && steps.draft-check.outputs.merge_base == 'main' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release edit v$(cat VERSION) --draft=false
     shell: bash
 
   - name: Download wheels
-    if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
+    if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && steps.draft-check.outputs.merge_base == 'main' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     run: gh release download v$(cat VERSION) --pattern '*.whl' --dir 'dist/'
     shell: bash
 
   - name: Publish packages
-    if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
+    if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && steps.draft-check.outputs.merge_base == 'main' && github.event.pull_request.merged == true
     uses: pypa/gh-action-pypi-publish@release/v1
     with:
       user: __token__
