@@ -10,6 +10,7 @@ if __name__ == '__main__':
     version =  list(open('VERSION'))[0].strip()
     
     draft = False
+    print(f'GIT_MERGE_BASE is {os.getenv('GIT_MERGE_BASE')}')
     if os.getenv('GIT_MERGE_BASE') == 'main':
         for release in ghrepo.get_releases():
             if release.draft:
