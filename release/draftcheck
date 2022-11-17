@@ -10,13 +10,14 @@ if __name__ == '__main__':
     version =  list(open('VERSION'))[0].strip()
     
     draft = False
-    for release in ghrepo.get_releases():
-        if release.draft:
-            if f"v{version}" == release.title:
-               draft = True
+    if os.getenv('GIT_MERGE_BASE') == 'main':
+        for release in ghrepo.get_releases():
+            if release.draft:
+                if f"v{version}" == release.title:
+                   draft = True
 
     if draft:
         print(f"matching draft found, need to publish the release {version}")
         print("::set-output name=draft::true")
     else:
-        print("no matching draft found; not publishing the release")
+        print("either not merging into 'main' or no matching draft found; not publishing the release")
