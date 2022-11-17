@@ -22,3 +22,4 @@ if __name__ == '__main__':
         print("no matching draft found; not publishing the release")
 
     print(f"::set-output name=merge_base::{os.getenv('GIT_MERGE_BASE')}")
+    
