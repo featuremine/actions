@@ -115,7 +115,7 @@ runs:
     if: inputs.docs == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber
+    run: for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber && break || sleep 1; done;
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
@@ -131,7 +131,8 @@ runs:
       for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
                       ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
                       ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
-      do gh release upload v$(cat VERSION) ${PKG} --clobber; done
+        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && break || sleep 1; done;
+      done;
     shell: bash
 
   - name: Upload sh package
@@ -140,7 +141,8 @@ runs:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
-      do gh release upload v$(cat VERSION) ${PKG} --clobber; done
+        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && break || sleep 1; done;
+      done;
     shell: bash
 
   - name: Upload wheel package
@@ -149,5 +151,6 @@ runs:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
-      do gh release upload v$(cat VERSION) ${PKG} --clobber; done
+        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && break || sleep 1; done;
+      done;
     shell: bash

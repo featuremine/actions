@@ -63,7 +63,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: |
-      gh release download v$(cat VERSION) -D /tmp/packages
+      for i in $(seq 1 5); do gh release download v$(cat VERSION) -D /tmp/packages && break || sleep 1; done;
       chmod -R u=rwx /tmp/packages
     shell: bash
 
