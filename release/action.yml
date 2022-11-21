@@ -39,14 +39,14 @@ runs:
     if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: for i in $(seq 1 5); do gh release edit v$(cat VERSION) --draft=false && break || sleep 1; done;
+    run: for i in $(seq 1 5); do gh release edit v$(cat VERSION) --draft=false && RET=0 && break || RET=$? && sleep 1; done; exit $RET
     shell: bash
 
   - name: Download wheels
     if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: for i in $(seq 1 5); do gh release download v$(cat VERSION) --pattern '*.whl' --dir 'dist/' && break || sleep 1; done;
+    run: for i in $(seq 1 5); do gh release download v$(cat VERSION) --pattern '*.whl' --dir 'dist/' && RET=0 && break || RET=$? && sleep 1; done; exit $RET
     shell: bash
 
   - name: Publish packages
