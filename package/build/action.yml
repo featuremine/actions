@@ -111,55 +111,62 @@ runs:
     run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
     shell: bash
     
-  - name: Upload documentation
+  - uses: nick-fields/retry@v2
+    name: Upload documentation
     if: inputs.docs == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber && RET=0 && break || RET=$? && sleep 1; done; exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber
 
   - name: Build system package ${{ inputs.cpack }}
     if: inputs.cpack != '' && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
-  - name: Upload system package ${{ inputs.cpack }}
+  - uses: nick-fields/retry@v2
+    name: Upload system package ${{ inputs.cpack }}
     if: inputs.cpack != '' && inputs.upload == 'true'
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: >
-      RET=0;
-      for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
-                      ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
-                      ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
-        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && RET=0 && break || RET=$? && sleep 1; done;
-        if [ $RET -eq 1 ]; then break; fi;
-      done;
-      exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: >
+        for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
+                        ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
+                        ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
+          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+        done; 
 
-  - name: Upload sh package
+  - uses: nick-fields/retry@v2
+    name: Upload sh package
     if: inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: >
-      RET=0;
-      for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
-        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && RET=0 && break || RET=$? && sleep 1; done;
-        if [ $RET -eq 1 ]; then break; fi;
-      done;
-      exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: >
+        for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
+          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+        done; 
 
-  - name: Upload wheel package
+  - uses: nick-fields/retry@v2
+    name: Upload wheel package
     if: inputs.wheel == 'true' && inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: >
-      RET=0;
-      for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
-        do for i in $(seq 1 5); do gh release upload v$(cat VERSION) ${PKG} --clobber && RET=0 && break || RET=$? && sleep 1; done;
-        if [ $RET -eq 1 ]; then break; fi;
-      done;
-      exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: >
+        for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
+          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+        done;

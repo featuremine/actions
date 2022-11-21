@@ -59,14 +59,17 @@ runs:
     run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
     shell: bash
 
-  - name: Download packages from github release
+  - uses: nick-fields/retry@v2
+    name: Download packages from github release
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: |
-      for i in $(seq 1 5); do gh release download v$(cat VERSION) -D /tmp/packages && RET=0 && break || RET=$? && sleep 1; done;
-      if [ $RET -eq 1 ]; then exit $RET; fi;
-      chmod -R u=rwx /tmp/packages
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: |
+        gh release download v$(cat VERSION) -D /tmp/packages
+        chmod -R u=rwx /tmp/packages
 
   - name: Build and install yamal for testing
     if: ${{ inputs.yamal_version != '' }}
