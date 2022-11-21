@@ -140,7 +140,7 @@ runs:
         for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
                         ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
                         ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
-          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+          do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
 
   - uses: nick-fields/retry@v2
@@ -154,7 +154,7 @@ runs:
       retry_wait_seconds: 1
       command: >
         for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
-          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+          do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
 
   - uses: nick-fields/retry@v2
@@ -168,5 +168,5 @@ runs:
       retry_wait_seconds: 1
       command: >
         for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
-          do gh release upload v$(cat VERSION) ${PKG} --clobber;
+          do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done;
