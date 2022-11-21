@@ -35,19 +35,27 @@ runs:
       rm draftcheck
     shell: bash
 
-  - name: Publish
+  - uses: nick-fields/retry@v2
+    name: Publish
     if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: for i in $(seq 1 5); do gh release edit v$(cat VERSION) --draft=false && RET=0 && break || RET=$? && sleep 1; done; exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: gh release edit v$(cat VERSION) --draft=false
 
-  - name: Download wheels
+  - uses: nick-fields/retry@v2
+    name: Download wheels
     if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: for i in $(seq 1 5); do gh release download v$(cat VERSION) --pattern '*.whl' --dir 'dist/' && RET=0 && break || RET=$? && sleep 1; done; exit $RET
-    shell: bash
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: gh release download v$(cat VERSION) --pattern '*.whl' --dir 'dist/'
 
   - name: Publish packages
     if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
