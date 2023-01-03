@@ -45,6 +45,8 @@ runs:
 
   - uses: tsuyoshicho/action-mypy@v3
     if: inputs.mypy == 'true'
+    with:
+      mypy_flags: --install-types --non-interactive
 
   - name: Validate if clang format is required
     id: check-format

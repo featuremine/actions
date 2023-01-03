@@ -16,6 +16,8 @@ runs:
   using: 'composite'    
   steps:
   - uses: tsuyoshicho/action-mypy@v3
+    with:
+      mypy_flags: --install-types --non-interactive
 
   - name: Set up QEMU
     if: runner.os == 'Linux'
