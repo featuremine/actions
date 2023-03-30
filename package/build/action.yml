@@ -43,6 +43,10 @@ inputs:
     description: 'Test Pypi token used to test the publish release'
     required: false
     default: ''
+  options:
+    description: 'Options for Cmake'
+    required: false
+    default: ''
 runs:
   using: 'composite'
   steps:
@@ -65,6 +69,7 @@ runs:
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
       -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+      ${{ inputs.options }}
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
