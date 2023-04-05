@@ -88,6 +88,8 @@ runs:
 
   - name: Build and install conveyor for testing
     if: ${{ inputs.conveyor_version != '' }}
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     working-directory: /tmp
     run: |
       git clone --recurse-submodules --depth 1 -b v${{ inputs.conveyor_version }} https://github.com/featuremine/conveyor.git
