@@ -99,7 +99,7 @@ runs:
       cd build && make -j${{ inputs.jobs }} && ${SUDO_PREFIX}make install
       if [[ $OSTYPE =~ "darwin" ]]; then mv output/*.whl "$(echo output/*.whl | sed s/[0-9][0-9]_0/10_9/)"; fi;
       pip3 install output/*.whl --verbose
-      bash *.sh
+      bash output/*.sh
     shell: bash
 
   - name: Install ${{ github.event.repository.name }} fm gcc package

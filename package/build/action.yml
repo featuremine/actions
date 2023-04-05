@@ -101,7 +101,7 @@ runs:
       cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
       cd build && make -j${{ inputs.jobs }} && make install
       pip3 install output/*.whl --verbose
-      bash *.sh
+      bash output/*.sh
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest
