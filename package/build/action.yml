@@ -8,10 +8,6 @@ inputs:
     description: 'Github credentials URL with user and token to clone other private repositories'
     required: false
     default: ''
-  yamal_version:
-    description: 'Version of yamal to download and install in the system (e.g. 7.2.18)'
-    required: false
-    default: ''
   build_type:
     description: 'Customize the CMake build type (Release, Debug, RelWithDebInfo, etc.)'
     required: false
@@ -71,18 +67,6 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
-    shell: bash
-
-  - name: Build and install yamal for testing
-    if: ${{ inputs.yamal_version != '' }}
-    working-directory: /tmp
-    run: |
-      git clone --recurse-submodules --depth 1 -b v${{ inputs.yamal_version }} https://github.com/featuremine/yamal.git
-      cd yamal
-      for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
-      cmake -B $PWD/build -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DBUILD_SHARED_LIBS=OFF -DBUILD_API_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_WHEEL=ON
-      cd build && make -j${{ inputs.jobs }} && make install
-      pip3 install output/*.whl --verbose
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest
