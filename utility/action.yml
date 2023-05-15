@@ -20,7 +20,8 @@ runs:
   using: 'composite'
   steps:
   - uses: actions/checkout@main
-    with:
+    with: 
+      fetch-depth: 0
       token: ${{ inputs.utility_token }}
 
   # Install python wrappers for gh
