@@ -17,11 +17,10 @@ outputs:
     description: 'Boolean to check if the PR is a release'
     value: ${{ steps.release-check.outputs.release }}
 runs:
-  using: 'composite'    
+  using: 'composite'
   steps:
   - uses: actions/checkout@main
-    with: 
-      fetch-depth: 0
+    with:
       token: ${{ inputs.utility_token }}
 
   # Install python wrappers for gh
