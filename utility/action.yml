@@ -25,13 +25,21 @@ runs:
       ref: ${{ github.event.pull_request.head.ref }}
       token: ${{ inputs.utility_token }}
 
+  # Validate if format ready
+  - name: Validate that last commit was not formatting commit
+    id: formatted
+    run: if [ "$(git log -1 --pretty=format:%B)" == "Committing clang-format changes" ]; then echo "ready=true" >> $GITHUB_OUTPUT; else echo "ready=false" >> $GITHUB_OUTPUT; fi
+    shell: bash
+
   # Install python wrappers for gh
   - name: Install PyGitHub
+    if: steps.formatted.outputs.ready == 'false'
     run: pip3 install PyGithub==1.58.0
     shell: bash
 
   # Detect release
   - name: Check if PR is release
+    if: steps.formatted.outputs.ready == 'false'
     id: release-check
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
@@ -46,9 +54,10 @@ runs:
     shell: bash
 
   - uses: tsuyoshicho/action-mypy@v3
-    if: inputs.mypy == 'true'
+    if: steps.formatted.outputs.ready == 'false' && inputs.mypy == 'true'
 
   - name: Validate if clang format is required
+    if: steps.formatted.outputs.ready == 'false'
     id: check-format
     run: |
       find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "::set-output name=format::true" || echo "::set-output name=format::false"
