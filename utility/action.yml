@@ -28,7 +28,7 @@ runs:
   # Validate if format ready
   - name: Validate that last commit was not formatting commit
     id: formatted
-    run: if [ "$(git log -1 --pretty=format:%B)" == "Committing clang-format changes" ]; then echo "ready=true" >> $GITHUB_OUTPUT; else echo "ready=false" >> $GITHUB_OUTPUT; fi
+    run: if [ "$(git log -1 --pretty=format:%B)" == "Committing clang-format changes" ]; then echo "ready=true" | tee -a $GITHUB_OUTPUT; else echo "ready=false" | tee -a $GITHUB_OUTPUT; fi
     shell: bash
 
   # Install python wrappers for gh
@@ -60,7 +60,7 @@ runs:
     if: steps.formatted.outputs.ready == 'false'
     id: check-format
     run: |
-      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "format=true" >> $GITHUB_OUTPUT || echo "format=false" >> $GITHUB_OUTPUT
+      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "format=true" | tee -a $GITHUB_OUTPUT || echo "format=false" | tee -a $GITHUB_OUTPUT
     shell: bash
 
   # Code formatting with Clang linter
