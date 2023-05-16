@@ -22,7 +22,7 @@ runs:
   - uses: actions/checkout@main
     with: 
       fetch-depth: 0
-      ref: github.head_ref
+      ref: github.ref_name
       token: ${{ inputs.utility_token }}
 
   # Install python wrappers for gh
