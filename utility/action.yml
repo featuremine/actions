@@ -39,6 +39,7 @@ runs:
 
   # Detect release
   - name: Check if PR is release
+    if: steps.formatted.outputs.ready == 'false'
     id: release-check
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
