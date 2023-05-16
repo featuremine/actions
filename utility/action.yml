@@ -60,7 +60,7 @@ runs:
     if: steps.formatted.outputs.ready == 'false'
     id: check-format
     run: |
-      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "::set-output name=format::true" || echo "::set-output name=format::false"
+      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "format=true" >> $GITHUB_OUTPUT || echo "format=false" >> $GITHUB_OUTPUT
     shell: bash
 
   # Code formatting with Clang linter

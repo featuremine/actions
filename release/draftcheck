@@ -19,6 +19,7 @@ if __name__ == '__main__':
 
     if draft:
         print(f"matching draft found, need to publish the release {version}")
-        print("::set-output name=draft::true")
+        with open(os.getenv('GITHUB_OUTPUT'), "a") as f:
+            f.write("draft=true\n")
     else:
         print("either not merging into 'main' or no matching draft found; not publishing the release")

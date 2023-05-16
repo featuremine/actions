@@ -98,6 +98,8 @@ if __name__ == '__main__':
                 f'v{ver}', f'v{ver}', f'draft release for version v{ver}',
                 draft=True, prerelease=False, target_commitish=os.getenv('GIT_MERGE_COMMIT')
             )
-        print("::set-output name=release::release")
+        with open(os.getenv('GITHUB_OUTPUT'), "a") as f:
+            f.write("release=release\n")
     else:
-        print("::set-output name=release::regular")
+        with open(os.getenv('GITHUB_OUTPUT'), "a") as f:
+            f.write("release=regular\n")
