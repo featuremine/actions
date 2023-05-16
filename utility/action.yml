@@ -52,7 +52,7 @@ runs:
     shell: bash
 
   - uses: tsuyoshicho/action-mypy@v3
-    if: steps.formatted.outputs.ready == 'false' && inputs.mypy == 'true'
+    if: inputs.mypy == 'true'
 
   - name: Validate if clang format is required
     if: steps.formatted.outputs.ready == 'false'
