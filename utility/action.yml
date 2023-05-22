@@ -17,11 +17,19 @@ outputs:
     description: 'Boolean to check if the PR is a release'
     value: ${{ steps.release-check.outputs.release }}
 runs:
-  using: 'composite'    
+  using: 'composite'
   steps:
   - uses: actions/checkout@main
     with: 
       fetch-depth: 0
+      ref: ${{ github.event.pull_request.head.ref }}
+      token: ${{ inputs.utility_token }}
+
+  # Validate if format ready
+  - name: Validate that last commit was not formatting commit
+    id: formatted
+    run: if [ "$(git log -1 --pretty=format:%B)" == "Committing clang-format changes" ]; then echo "ready=true" | tee -a $GITHUB_OUTPUT; else echo "ready=false" | tee -a $GITHUB_OUTPUT; fi
+    shell: bash
 
   # Install python wrappers for gh
   - name: Install PyGitHub
@@ -47,9 +55,10 @@ runs:
     if: inputs.mypy == 'true'
 
   - name: Validate if clang format is required
+    if: steps.formatted.outputs.ready == 'false'
     id: check-format
     run: |
-      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "::set-output name=format::true" || echo "::set-output name=format::false"
+      find . | grep -c -e '\.h$' -e '\.c$' -e '\.hpp$' -e '\.cpp$' && echo "format=true" | tee -a $GITHUB_OUTPUT || echo "format=false" | tee -a $GITHUB_OUTPUT
     shell: bash
 
   # Code formatting with Clang linter
@@ -62,11 +71,18 @@ runs:
       inplace: True
 
   # Commit clang-format changes
-  - uses: EndBug/add-and-commit@v4
+  - uses: EndBug/add-and-commit@v9.1.3
+    id: add-and-commit
     if: steps.check-format.outputs.format == 'true'
     with:
         author_name: CI bot
         author_email: dev@featuremine.com
         message: 'Committing clang-format changes'
-    env:
-      GITHUB_TOKEN: ${{ inputs.utility_token }}
+
+  # Validate if we should fail this job
+  - name: Check if PR is release
+    if: steps.add-and-commit.outputs.committed == 'true'
+    run: |
+      echo "Code was formatted in this workflow. Failing workflow."
+      exit 1
+    shell: bash
