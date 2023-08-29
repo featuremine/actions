@@ -51,7 +51,7 @@ runs:
       git clone --depth 1 https://github.com/featuremine/license
     shell: bash
 
-  - uses: actions/checkout@main
+  - uses: actions/checkout@v3.5.3
     with: 
       fetch-depth: 0
 
