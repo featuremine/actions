@@ -143,7 +143,7 @@ runs:
       max_attempts: 5
       retry_wait_seconds: 1
       command: >
-        for PKG in $(ls ${{github.workspace}}/build/output/*.sh 2>/dev/null);
+        for PKG in $(ls ${{github.workspace}}/build/output/*.sh ${{github.workspace}}/build/output/*-html.tar.gz ${{github.workspace}}/build/output/*-md.tar.gz 2>/dev/null);
           do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
 
