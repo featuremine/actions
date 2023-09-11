@@ -57,6 +57,16 @@ runs:
     run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
     shell: bash
 
+  - name: Install build requirements
+    if: inputs.docs == 'true'
+    run: |
+      LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8 python3 -m pip install pandoc==2.3
+      curl -L https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz --output "$RUNNER_TEMP/pandoc-2.19.2.tar.gz" || exit 1
+      tar xvzf "$RUNNER_TEMP/pandoc-2.19.2.tar.gz" -C "$RUNNER_TEMP"
+      rm "$RUNNER_TEMP/pandoc-2.19.2.tar.gz"
+      echo "$RUNNER_TEMP/pandoc-2.19.2/bin" >> $GITHUB_PATH
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
@@ -65,6 +75,8 @@ runs:
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
       -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
     shell: bash
