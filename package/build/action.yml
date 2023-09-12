@@ -108,22 +108,6 @@ runs:
     run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} ${{github.workspace}}/build/output/*.whl
     shell: bash
 
-  - name: Compress documentation
-    if: inputs.docs == 'true' && inputs.upload == 'true'
-    run: tar -czvf ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz -C ${{github.workspace}}/build/docs/sphinx . 
-    shell: bash
-    
-  - uses: nick-fields/retry@v2
-    name: Upload documentation
-    if: inputs.docs == 'true' && inputs.upload == 'true'
-    env:
-      GH_TOKEN: ${{ inputs.gh_token }}
-    with:
-      timeout_minutes: 5
-      max_attempts: 5
-      retry_wait_seconds: 1
-      command: gh release upload v$(cat VERSION) ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-docs.tar.gz --clobber
-
   - name: Build system package ${{ inputs.cpack }}
     if: inputs.cpack != '' && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
