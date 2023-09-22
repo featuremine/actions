@@ -36,6 +36,10 @@ inputs:
     type: boolean
     required: false
     default: true
+  extra_options:
+    description: 'Build extra options'
+    required: false
+    default: ''
   upload:
     description: 'Upload package and docs to github release'
     type: boolean
@@ -79,6 +83,7 @@ runs:
       -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
       -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+      ${{ inputs.extra_options }}
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
