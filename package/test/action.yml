@@ -90,8 +90,10 @@ runs:
 
   - name: Install ${{ github.event.repository.name }} fm gcc package
     run: >
-      for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).sh 2>/dev/null);
-        do ${SUDO_PREFIX}${PKG};
+      for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).sh 2>/dev/null); do
+        if [[ "$PKG" != *"-demo-"* ]]; then
+          ${SUDO_PREFIX}${PKG}
+        fi
       done;
       for PKG in $(ls /tmp/packages/*-$(uname -s)-$(uname -m).tar.gz  2>/dev/null);
         do ${SUDO_PREFIX}tar xvzfk ${PKG} -C /usr/$(if [[ $OSTYPE =~ "linux" ]]; then echo ""; elif [[ $OSTYPE =~ "darwin" ]]; then echo local; fi);
