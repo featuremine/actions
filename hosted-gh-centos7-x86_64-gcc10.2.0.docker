@@ -9,11 +9,11 @@ RUN yum -y install redhat-lsb wget gmp-devel mpfr-devel libmpc-devel gnupg wget
 # custom gcc
 ENV GCC_NAME gcc-10.2.0
 
-RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
-RUN wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+RUN wget --no-check-certificate https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
+RUN wget --no-check-certificate https://ftp.gnu.org/gnu/gnu-keyring.gpg
 RUN gpg --import gnu-keyring.gpg | true
 
-RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz && \
+RUN wget --no-check-certificate https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz && \
     gpg --verify $GCC_NAME.tar.gz.sig $GCC_NAME.tar.gz && \
     tar xzf $GCC_NAME.tar.gz && \
     rm $GCC_NAME.tar.gz && \
