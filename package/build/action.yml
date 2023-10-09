@@ -53,6 +53,19 @@ inputs:
     description: 'Use XCode generator for cmake and use signatures'
     required: false
     default: false
+  development_team:
+    description: 'Apple XCode Development team'
+    required: false
+    default: ''
+  sign_identity:
+    description: 'Apple XCode Sign Identity'
+    required: false
+    default: 'Featuremine'
+  sign_style:
+    description: 'Apple XCode Sign Style'
+    required: false
+    default: 'Manual'
+
 runs:
   using: 'composite'
   steps:
@@ -81,6 +94,10 @@ runs:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       cmake -B ${{github.workspace}}/build
+      -GXcode
+      -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=${{ inputs.development_team }}
+      -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY=${{ inputs.sign_identity }}
+      -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE=${{ inputs.sign_style }}
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
