@@ -49,6 +49,10 @@ inputs:
     description: 'Test Pypi token used to test the publish release'
     required: false
     default: ''
+  apple_developer:
+    description: 'Use XCode generator for cmake and use signatures'
+    required: false
+    default: false
 runs:
   using: 'composite'
   steps:
@@ -72,6 +76,23 @@ runs:
     shell: bash
 
   - name: Configure ${{ github.event.repository.name }} CMake
+    if: inputs.apple_developer == 'true' && runner.os == 'macOS'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: >
+      cmake -B ${{github.workspace}}/build
+      -DBUILD_TESTING=ON
+      -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+      -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+      ${{ inputs.extra_options }}
+    shell: bash
+
+  - name: Configure ${{ github.event.repository.name }} CMake
+    if: runner.os != 'macOS' || inputs.apple_developer == 'false'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
