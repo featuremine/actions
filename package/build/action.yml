@@ -52,7 +52,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: de-vri-es/setup-git-credentials@v2
+  - uses: de-vri-es/setup-git-credentials@v2.0.10
     if: ${{ inputs.git_credentials_url != '' }}
     with:
       credentials: ${{ inputs.git_credentials_url }}
