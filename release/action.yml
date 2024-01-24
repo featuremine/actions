@@ -22,7 +22,7 @@ runs:
   using: 'composite'    
   steps:
   # Checkout to get the VERSION
-  - uses: actions/checkout@main
+  - uses: actions/checkout@v3.5.3
     with: 
       fetch-depth: 0
 

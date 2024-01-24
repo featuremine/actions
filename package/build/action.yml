@@ -52,7 +52,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: de-vri-es/setup-git-credentials@v2
+  - uses: de-vri-es/setup-git-credentials@v2.0.10
     if: ${{ inputs.git_credentials_url != '' }}
     with:
       credentials: ${{ inputs.git_credentials_url }}
@@ -135,7 +135,7 @@ runs:
         done; 
 
   - uses: nick-fields/retry@v2
-    name: Upload sh package
+    name: Upload output files
     if: inputs.upload == 'true'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
@@ -144,20 +144,6 @@ runs:
       max_attempts: 5
       retry_wait_seconds: 1
       command: >
-        for PKG in $(ls ${{github.workspace}}/build/output/*.sh ${{github.workspace}}/build/output/*-html.tar.gz ${{github.workspace}}/build/output/*-md.tar.gz 2>/dev/null);
+        for PKG in $(ls ${{github.workspace}}/build/output/* 2>/dev/null);
           do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
-
-  - uses: nick-fields/retry@v2
-    name: Upload wheel package
-    if: inputs.wheel == 'true' && inputs.upload == 'true'
-    env:
-      GH_TOKEN: ${{ inputs.gh_token }}
-    with:
-      timeout_minutes: 5
-      max_attempts: 5
-      retry_wait_seconds: 1
-      command: >
-        for PKG in $(ls ${{github.workspace}}/build/output/*.whl 2>/dev/null);
-          do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
-        done;
