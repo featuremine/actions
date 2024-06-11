@@ -58,13 +58,13 @@ runs:
       credentials: ${{ inputs.git_credentials_url }}
 
   - name: Install Python requirements
-    run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ}; done
+    run: for REQ in $(find . -name "*requirements*.txt" 2>/dev/null); do python3 -m pip install -r ${REQ} --break-system-packages; done
     shell: bash
 
   - name: Install build requirements
     if: inputs.docs == 'true'
     run: |
-      LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8 python3 -m pip install pandoc==2.3
+      LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8 python3 -m pip install pandoc==2.3 --break-system-packages
       curl -L https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz --output "$RUNNER_TEMP/pandoc-2.19.2.tar.gz" || exit 1
       tar xvzf "$RUNNER_TEMP/pandoc-2.19.2.tar.gz" -C "$RUNNER_TEMP"
       rm "$RUNNER_TEMP/pandoc-2.19.2.tar.gz"
