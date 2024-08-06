@@ -41,6 +41,7 @@ runs:
   - name: Create release if does not exist
     run: >
       gh release create v$(cat VERSION) --repo ${{ inputs.destination }} --notes "draft release for version v$(cat VERSION)" || true
+    shell: bash
 
   - uses: nick-fields/retry@v2
     name: Upload packages
