@@ -42,7 +42,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      gh release create v$(cat VERSION) --repo ${{ inputs.destination }} --notes "draft release for version v$(cat VERSION)" || true
+      gh release create v$(cat VERSION) --draft --repo ${{ inputs.destination }} --notes "draft release for version v$(cat VERSION)" || true
     shell: bash
 
   - uses: nick-fields/retry@v2
