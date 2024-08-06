@@ -1,0 +1,56 @@
+# COPYRIGHT (c) 2019-2023 by Featuremine Corporation.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+name: 'Copy package action'
+description: 'Copy github releases from source repository to destination repository'
+inputs:
+  gh_token:
+    description: 'Github token used to upload documentation'
+    required: true
+  git_credentials_url:
+    description: 'Github credentials URL with user and token to clone other private repositories'
+    required: false
+    default: ''
+  destination:
+    description: 'Destination repository to publish release'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - uses: de-vri-es/setup-git-credentials@v2.0.10
+    if: ${{ inputs.git_credentials_url != '' }}
+    with:
+      credentials: ${{ inputs.git_credentials_url }}
+
+  - uses: nick-fields/retry@v2
+    name: Download packages
+    env: 
+      GH_TOKEN: ${{ inputs.gh_token }}
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: |
+        rm -rf ${{github.workspace}}/assets
+        mkdir -p ${{github.workspace}}/assets
+        gh release download v$(cat VERSION) --dir ${{github.workspace}}/assets
+
+  - name: Create release if does not exist
+    run: >
+      gh release create v$(cat VERSION) --repo ${{ inputs.destination }} --notes "draft release for version v$(cat VERSION)" || true
+
+  - uses: nick-fields/retry@v2
+    name: Upload packages
+    env: 
+      GH_TOKEN: ${{ inputs.gh_token }}
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: >
+        for PKG in $(ls ${{github.workspace}}/assets 2>/dev/null);
+          do gh release upload v$(cat VERSION) ${PKG} --clobber --repo ${{ inputs.destination }} || exit 1;
+        done; 

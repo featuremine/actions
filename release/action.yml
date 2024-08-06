@@ -14,6 +14,10 @@ inputs:
     description: 'Pypi token used to publish the wheels release'
     required: false
     default: ''
+  destination:
+    description: 'Destination repository to publish release'
+    required: false
+    default: ''
 outputs:
   draft-check:
     description: 'Boolean to check if the release draft exists'
@@ -54,6 +58,17 @@ runs:
       max_attempts: 5
       retry_wait_seconds: 1
       command: gh release edit v$(cat VERSION) --draft=false
+
+  - uses: nick-fields/retry@v2
+    name: Publish to destination
+    if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true && inputs.destination != ''
+    env: 
+      GH_TOKEN: ${{ inputs.gh_token }}
+    with:
+      timeout_minutes: 5
+      max_attempts: 5
+      retry_wait_seconds: 1
+      command: gh release edit v$(cat VERSION) --draft=false --repo ${{ inputs.destination }}
 
   - uses: nick-fields/retry@v2
     name: Download wheels
