@@ -61,7 +61,8 @@ runs:
 
   - uses: nick-fields/retry@v2
     name: Publish to destination
-    if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true && inputs.destination != ''
+    # if: steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true && inputs.destination != ''
+    if: steps.draft-check.outputs.draft == 'true'
     env: 
       GH_TOKEN: ${{ inputs.gh_token }}
     with:
