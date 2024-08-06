@@ -53,5 +53,5 @@ runs:
       retry_wait_seconds: 1
       command: >
         for PKG in $(ls ${{github.workspace}}/assets 2>/dev/null);
-          do gh release upload v$(cat VERSION) ${PKG} --clobber --repo ${{ inputs.destination }} || exit 1;
+          do gh release upload v$(cat VERSION) ${{github.workspace}}/assets/${PKG} --clobber --repo ${{ inputs.destination }} || exit 1;
         done; 
