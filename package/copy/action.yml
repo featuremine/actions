@@ -39,6 +39,8 @@ runs:
         gh release download v$(cat VERSION) --pattern '*' --dir ${{github.workspace}}/assets
 
   - name: Create release if does not exist
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       gh release create v$(cat VERSION) --repo ${{ inputs.destination }} --notes "draft release for version v$(cat VERSION)" || true
     shell: bash
