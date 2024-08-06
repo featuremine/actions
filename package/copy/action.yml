@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-name: 'Copy package action'
+name: 'Copy release packages action'
 description: 'Copy github releases from source repository to destination repository'
 inputs:
   gh_token:
