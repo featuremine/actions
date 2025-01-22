@@ -68,7 +68,7 @@ runs:
 
   - name: Publish packages
     if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
-    uses: pypa/gh-action-pypi-publish@release/v1
+    uses: pypa/gh-action-pypi-publish@release/v1.10
     with:
       user: __token__
       password: ${{ inputs.pypi_token }}
