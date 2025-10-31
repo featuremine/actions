@@ -1,0 +1,79 @@
+FROM centos:7
+ENV container docker
+
+# dependencies
+
+RUN sed -i 's/mirror\.centos\.org/vault.centos.org/g' /etc/yum.repos.d/CentOS-*.repo
+RUN sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/CentOS-*.repo
+RUN sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/CentOS-*.repo
+
+RUN yum -y install epel-release
+RUN yum -y group install "Development Tools"
+RUN yum -y install redhat-lsb wget gmp-devel mpfr-devel libmpc-devel gnupg wget
+
+# custom gcc
+
+ENV GCC_NAME gcc-13.2.0
+
+RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
+RUN wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+RUN gpg --import gnu-keyring.gpg | true
+
+RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz && \
+    gpg --verify $GCC_NAME.tar.gz.sig $GCC_NAME.tar.gz && \
+    tar xzf $GCC_NAME.tar.gz && \
+    rm $GCC_NAME.tar.gz && \
+    cd $GCC_NAME && \
+    mkdir release && \
+    cd release && \
+    ../configure --prefix=/opt/$GCC_NAME --disable-libstdcxx-visibility \
+                 --disable-multilib --enable-languages=c,c++ && \
+    make bootstrap -j 17 && \
+    make install && cd .. && cd .. && rm -rf $GCC_NAME
+
+ENV CXX /opt/$GCC_NAME/bin/c++
+ENV CC /opt/$GCC_NAME/bin/gcc
+
+# dependencies
+RUN yum -y remove git && \
+    yum -y remove git-* && \
+    yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && \
+    yum install -y git \
+    curl autoconf automake pkgconfig graphviz doxygen libstdc++-static \
+    wget git python3-devel zlib-devel python3 rpm-build python3-sphinx
+
+RUN python3 -m pip install --upgrade pip && \
+    pip3 install pkgconfig mypy Cython wheel faker boto3 cibuildwheel==2.8.1 twine packaging==21.3 \
+    breathe sphinx_rtd_theme mistune==0.8.4 m2r sphinx-autodoc-typehints
+
+RUN mkdir /actions-runner && cd /actions-runner && \
+    curl -o actions-runner-linux-x64-2.296.2.tar.gz -L https://github.com/actions/runner/releases/download/v2.296.2/actions-runner-linux-x64-2.296.2.tar.gz && \
+    tar xzf ./actions-runner-linux-x64-2.296.2.tar.gz && \
+    ./bin/installdependencies.sh && \
+    rm -f /actions-runner/actions-runner-linux-x64-2.296.2.tar.gz
+
+RUN cd /tmp && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.tar.gz && \
+    tar xvzf cmake-3.21.0-linux-x86_64.tar.gz && \
+    cp /tmp/cmake-3.21.0-linux-x86_64/bin/* /usr/bin/ && \
+    cp -r /tmp/cmake-3.21.0-linux-x86_64/share/* /usr/share/ && \
+    rm -rf /tmp/cmake-3.21.0-linux-x86_64 /tmp/cmake-3.21.0-linux-x86_64.tar.gz
+
+RUN yum -y install epel-release && \
+    yum -y install dnf && \
+    dnf -y install 'dnf-command(config-manager)' && \
+    dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo && \
+    dnf -y --nogpgcheck install gh
+
+RUN cd /tmp && \
+    wget https://www.openssl.org/source/openssl-1.1.1q.tar.gz --no-check-certificate && \
+    tar xzf openssl-1.1.1q.tar.gz && \
+    cd openssl-1.1.1q && \
+    ./config no-shared && \
+    make -j8 && make install && \
+    rm -rf /tmp/openssl-1.1.1q /tmp/openssl-1.1.1q.tar.gz
+
+#The GIT_TOKEN is the self-hosted token, not the users token
+CMD cd /actions-runner && \
+    ./config.sh --url ${GIT_REPO} --token ${GIT_TOKEN} --labels ${RUNNER_LABEL} --name ${RUNNER_NAME} --ephemeral --unattended && \
+    ./run.sh
