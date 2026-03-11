@@ -72,10 +72,10 @@ RUN pip install pandas==1.2.0 pytz
 RUN pip3 install pkgconfig faker boto3 cibuildwheel==2.8.1 twine packaging==21.3
 
 RUN mkdir /actions-runner && cd /actions-runner && \
-    curl -o actions-runner-linux-x64-2.296.2.tar.gz -L https://github.com/actions/runner/releases/download/v2.296.2/actions-runner-linux-x64-2.296.2.tar.gz && \
-    tar xzf ./actions-runner-linux-x64-2.296.2.tar.gz && \
+    curl -o actions-runner-linux-x64-2.332.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.332.0/actions-runner-linux-x64-2.332.0.tar.gz && \
+    tar xzf ./actions-runner-linux-x64-2.332.0.tar.gz && \
     ./bin/installdependencies.sh && \
-    rm -f /actions-runner/actions-runner-linux-x64-2.296.2.tar.gz
+    rm -f /actions-runner/actions-runner-linux-x64-2.332.0.tar.gz
 
 RUN cd /tmp && \
     wget --no-check-certificate https://capnproto.org/capnproto-c++-0.9.0.tar.gz && \
