@@ -1,31 +1,13 @@
-FROM --platform=linux/amd64 ubuntu:20.04
+FROM rockylinux/rockylinux:8.10
 ENV container docker
-ENV DEBIAN_FRONTEND "noninteractive"
 
 # dependencies
-
-RUN apt-get update -y
-RUN apt-get upgrade -y
-RUN apt-get install -y build-essential
-RUN apt-get install -y wget libgmp-dev libmpfr-dev libmpc-dev
-RUN apt-get -y install clang 
-RUN apt-get -y install cmake
-RUN apt-get -y install doxygen
-RUN apt-get -y install graphviz
-RUN apt-get -y install pkg-config
-RUN apt-get -y install libstdc++-10-dev
-RUN apt-get -y install libunwind-dev
-RUN apt-get -y install curl rpm
-RUN apt-get -y install zlib1g-dev libbz2-dev openssl libssl-dev libsqlite3-dev
-RUN apt-get -y install libdw-dev libpcap-dev liblz4-dev libcurl4
-RUN apt-get -y install libarchive-dev
-RUN apt-get -y install libevent-dev
-RUN apt-get -y install git
-RUN apt-get -y install autoconf automake pkg-config 
-RUN apt-get -y install lsb-release
+RUN yum -y install epel-release
+RUN yum -y group install "Development Tools"
+RUN yum -y install redhat-lsb wget gmp-devel mpfr-devel libmpc-devel gnupg wget
 
 # custom gcc
-ENV GCC_NAME gcc-10.2.0
+ENV GCC_NAME gcc-13.2.0
 
 RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
 RUN wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
@@ -47,35 +29,28 @@ RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz && \
 ENV CXX /opt/$GCC_NAME/bin/c++
 ENV CC /opt/$GCC_NAME/bin/gcc
 
+# dependencies
+RUN yum -y remove git && \
+    yum -y remove git-* && \
+    yum install dnf-plugins-core && \
+    yum config-manager --set-enabled powertools && \
+    yum -y install https://packages.endpointdev.com/rhel/8/main/x86_64/endpoint-repo.noarch.rpm && \
+    yum install -y git \
+    curl autoconf automake pkgconfig graphviz doxygen libstdc++-static \
+    wget git python3.11-devel zlib-devel python3.11 rpm-build python3.11-pip
 
-RUN wget -c https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tar.xz && \
-    tar -xvf Python-3.8.12.tar.xz && \
-    cd Python-3.8.12 && \
-    ./configure --enable-optimizations --enable-shared && \ 
-    make install && \
-    update-alternatives --install /usr/bin/python python /usr/local/bin/python3.8 1 && \
-    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.8 1 && \
-    cd .. && \ 
-    rm -rf Python-3.8.12
+RUN ln -s /usr/lib64/pkgconfig/python-3.11-embed.pc /usr/lib64/pkgconfig/python3-embed.pc && \
+    ln -s /usr/lib64/pkgconfig/python-3.11.pc /usr/lib64/pkgconfig/python3.pc
 
-RUN echo /usr/local/lib >> /etc/ld.so.conf.d/usr-local.conf
-RUN ldconfig
-RUN python --version
-RUN pip install numpy==1.19.2
-RUN pip install setuptools wheel cython 
-RUN pip install pycapnp
-RUN pip install awscli msgpack==0.6.2
-RUN pip install psutil==5.8.0
-RUN pip install mypy==0.790 
-RUN pip install boto3==1.13.11
-RUN pip install pandas==1.2.0 pytz
-RUN pip3 install pkgconfig faker boto3 cibuildwheel==2.8.1 twine packaging==21.3
+RUN python3 -m pip install --upgrade pip && \
+    pip3 install sphinx pkgconfig mypy Cython wheel faker boto3 cibuildwheel==2.8.1 twine packaging==21.3 \
+    breathe sphinx_rtd_theme mistune==0.8.4 m2r sphinx-autodoc-typehints
 
 RUN mkdir /actions-runner && cd /actions-runner && \
-    curl -o actions-runner-linux-x64-2.296.2.tar.gz -L https://github.com/actions/runner/releases/download/v2.296.2/actions-runner-linux-x64-2.296.2.tar.gz && \
-    tar xzf ./actions-runner-linux-x64-2.296.2.tar.gz && \
+    curl -o actions-runner-linux-x64-2.332.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.332.0/actions-runner-linux-x64-2.332.0.tar.gz && \
+    tar xzf ./actions-runner-linux-x64-2.332.0.tar.gz && \
     ./bin/installdependencies.sh && \
-    rm -f /actions-runner/actions-runner-linux-x64-2.296.2.tar.gz
+    rm -f /actions-runner/actions-runner-linux-x64-2.332.0.tar.gz
 
 RUN cd /tmp && \
     wget --no-check-certificate https://capnproto.org/capnproto-c++-0.9.0.tar.gz && \
@@ -108,11 +83,11 @@ RUN cd /tmp && \
     make -j8 && make install && \
     rm -rf /tmp/tclap-code
 
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt update \
-    && apt install gh -y
+RUN yum -y install epel-release && \
+    yum -y install dnf && \
+    dnf -y install 'dnf-command(config-manager)' && \
+    dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo && \
+    dnf -y --nogpgcheck install gh
 
 RUN cd /tmp && \
     wget https://www.openssl.org/source/openssl-1.1.1q.tar.gz --no-check-certificate && \
