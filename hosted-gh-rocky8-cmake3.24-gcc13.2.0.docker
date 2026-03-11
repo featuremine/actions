@@ -7,7 +7,7 @@ RUN yum -y group install "Development Tools"
 RUN yum -y install redhat-lsb wget gmp-devel mpfr-devel libmpc-devel gnupg wget
 
 # custom gcc
-ENV GCC_NAME gcc-10.2.0
+ENV GCC_NAME gcc-13.2.0
 
 RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
 RUN wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
@@ -62,11 +62,11 @@ RUN cd /tmp && \
     LDFLAGS="-static-libstdc++ -static-libgcc" pip3 install pycapnp --no-cache-dir
 
 RUN cd /tmp && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.tar.gz && \
-    tar xvzf cmake-3.21.0-linux-x86_64.tar.gz && \
-    cp /tmp/cmake-3.21.0-linux-x86_64/bin/* /usr/bin/ && \
-    cp -r /tmp/cmake-3.21.0-linux-x86_64/share/* /usr/share/ && \
-    rm -rf /tmp/cmake-3.21.0-linux-x86_64 /tmp/cmake-3.21.0-linux-x86_64.tar.gz
+    wget https://github.com/Kitware/CMake/releases/download/v3.24.2/cmake-3.24.2-linux-x86_64.tar.gz && \
+    tar xvzf cmake-3.24.2-linux-x86_64.tar.gz && \
+    cp /tmp/cmake-3.24.2-linux-x86_64/bin/* /usr/bin/ && \
+    cp -r /tmp/cmake-3.24.2-linux-x86_64/share/* /usr/share/ && \
+    rm -rf /tmp/cmake-3.24.2-linux-x86_64 /tmp/cmake-3.24.2-linux-x86_64.tar.gz
 
 RUN cd /tmp && \
     git clone --depth 1 https://github.com/google/googletest.git -b release-1.11.0 && \

@@ -7,7 +7,7 @@ RUN yum -y group install "Development Tools"
 RUN yum -y install redhat-lsb wget gmp-devel mpfr-devel libmpc-devel gnupg wget
 
 # custom gcc
-ENV GCC_NAME gcc-10.2.0
+ENV GCC_NAME gcc-13.2.0
 
 RUN wget https://ftp.gnu.org/gnu/gcc/$GCC_NAME/$GCC_NAME.tar.gz.sig
 RUN wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
