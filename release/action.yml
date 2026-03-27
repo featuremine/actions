@@ -26,7 +26,7 @@ runs:
   using: 'composite'    
   steps:
   # Checkout to get the VERSION
-  - uses: actions/checkout@v3.5.3
+  - uses: actions/checkout@v6
     with: 
       fetch-depth: 0
 
