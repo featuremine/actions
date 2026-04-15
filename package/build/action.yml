@@ -74,10 +74,11 @@ runs:
   - name: Normalize workspace path
     if: runner.os == 'Windows'
     run: |
-      PATH_WITH_SLASHES="${{ github.workspace }}"
-      echo "windows_workspace=${PATH_WITH_SLASHES//\\//}" >> $GITHUB_ENV
-      echo ${{ github.workspace }}
-      ehco ${PATH_WITH_SLASHES//\\//}
+      PATH_WITH_BACKSLASHES="${{ github.workspace }}"
+      PATH_WITH_SLASHES="${PATH_WITH_BACKSLASHES//\\//}"
+      echo "windows_workspace=$PATH_WITH_SLASHES" >> $GITHUB_ENV
+      echo "$PATH_WITH_BACKSLASHES"
+      ehco "$PATH_WITH_SLASHES"
       echo ${{ github.windows_workspace }}
     shell: bash
 
