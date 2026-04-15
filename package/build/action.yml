@@ -115,7 +115,7 @@ runs:
     if: runner.os == 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: cmake --build ${{env.windows_workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    run: cmake --build ${{env.windows_workspace}}/build --config ${{ inputs.build_type }} -- /CGTHREADS:${{ inputs.jobs }}
     shell: bash
 
   - name: Build ${{ github.event.repository.name }}
