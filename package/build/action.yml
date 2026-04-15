@@ -170,6 +170,7 @@ runs:
       retry_wait_seconds: 1
       command: >
         for PKG in $(ls ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
+                        ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).zip
                         ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
                         ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
           do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
