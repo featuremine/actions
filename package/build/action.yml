@@ -77,9 +77,6 @@ runs:
       PATH_WITH_BACKSLASHES="${{ github.workspace }}"
       PATH_WITH_SLASHES="${PATH_WITH_BACKSLASHES//\\//}"
       echo "windows_workspace=${PATH_WITH_SLASHES}" >> $GITHUB_ENV
-      echo "${PATH_WITH_BACKSLASHES}"
-      echo "${PATH_WITH_SLASHES}"
-      echo "${{ env.windows_workspace }}"
     shell: bash
 
   - name: Configure ${{ github.event.repository.name }} CMake
@@ -115,6 +112,14 @@ runs:
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
+    if: runner.os == 'Windows'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: cmake --build ${{env.windows_workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    shell: bash
+
+  - name: Build ${{ github.event.repository.name }}
+    if: runner.os != 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
@@ -142,7 +147,12 @@ runs:
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
-    if: inputs.cpack != '' && inputs.upload == 'true'
+    if: runner.os == 'Windows' && inputs.cpack != '' && inputs.upload == 'true'
+    run: cd ${{env.windows_workspace}}/build && cpack -G ${{ inputs.cpack }}
+    shell: bash
+
+  - name: Build system package ${{ inputs.cpack }}
+    if: runner.os != 'Windows' && inputs.cpack != '' && inputs.upload == 'true'
     run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
