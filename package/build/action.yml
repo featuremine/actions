@@ -85,6 +85,7 @@ runs:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
       cmake -B ${{ env.windows_workspace }}/build
+      -A x64
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
@@ -100,7 +101,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      cmake -B ${{github.workspace}}/build
+      cmake -B ${{github.workspace}}/build 
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
@@ -115,7 +116,7 @@ runs:
     if: runner.os == 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: cmake --build ${{env.windows_workspace}}/build --config ${{ inputs.build_type }} -- /m:${{ inputs.jobs }}
+    run: cmake --build ${{env.windows_workspace}}/build --config ${{ inputs.build_type }} -- -maxcpucount:${{ inputs.jobs }}
     shell: bash
 
   - name: Build ${{ github.event.repository.name }}
