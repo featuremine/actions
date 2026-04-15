@@ -78,7 +78,7 @@ runs:
       PATH_WITH_SLASHES="${PATH_WITH_BACKSLASHES//\\//}"
       echo "windows_workspace=$PATH_WITH_SLASHES" >> $GITHUB_ENV
       echo "${PATH_WITH_BACKSLASHES}"
-      ehco "${PATH_WITH_SLASHES}"
+      echo "${PATH_WITH_SLASHES}"
       echo ${{ github.windows_workspace }}
     shell: bash
 
