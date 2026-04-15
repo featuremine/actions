@@ -76,6 +76,8 @@ runs:
     run: |
       PATH_WITH_SLASHES="${{ github.workspace }}"
       echo "windows_workspace=${PATH_WITH_SLASHES//\\//}" >> $GITHUB_ENV
+      echo ${{ github.workspace }}
+      echo ${{ github.windows_workspace }}
     shell: bash
 
   - name: Configure ${{ github.event.repository.name }} CMake
