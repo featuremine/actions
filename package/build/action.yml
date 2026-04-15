@@ -71,7 +71,31 @@ runs:
       echo "$RUNNER_TEMP/pandoc-2.19.2/bin" >> $GITHUB_PATH
     shell: bash
 
+  - name: Normalize workspace path
+    if: runner.os == 'Windows'
+    run: |
+      PATH_WITH_SLASHES="${{ github.workspace }}"
+      echo "windows_workspace=${PATH_WITH_SLASHES//\\//}" >> $GITHUB_ENV
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
+    if: runner.os == 'Windows'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: >
+      cmake -B ${{github.windows_workspace}}/build
+      -DBUILD_TESTING=ON
+      -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+      -DOPENSSL_ROOT_DIR='C:/Program Files/OpenSSL'
+      ${{ inputs.extra_options }}
+    shell: bash
+
+  - name: Configure ${{ github.event.repository.name }} CMake
+    if: runner.os != 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
