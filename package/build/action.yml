@@ -79,7 +79,7 @@ runs:
       echo "windows_workspace=$PATH_WITH_SLASHES" >> $GITHUB_ENV
       echo "${PATH_WITH_BACKSLASHES}"
       echo "${PATH_WITH_SLASHES}"
-      echo ${{ github.windows_workspace }}
+      echo "${{ github.windows_workspace }}"
     shell: bash
 
   - name: Configure ${{ github.event.repository.name }} CMake
@@ -87,7 +87,7 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      cmake -B ${{github.windows_workspace}}/build
+      cmake -B ${{ github.windows_workspace }}/build
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
