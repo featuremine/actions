@@ -115,7 +115,7 @@ runs:
       -DBUILD_DOCUMENTATION=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
-      -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+      -DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)
       ${{ inputs.extra_options }}
     shell: bash
     
