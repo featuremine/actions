@@ -83,9 +83,10 @@ runs:
 
   - name: Publish packages
     if: inputs.pypi_token != '' && steps.draft-check.outputs.draft == 'true' && github.event.pull_request.merged == true
-    uses: pypa/gh-action-pypi-publish@release/v1
-    with:
-      user: __token__
-      password: ${{ inputs.pypi_token }}
-      skip_existing: true
-      verbose: true
+    env:
+      TWINE_USERNAME: __token__
+      TWINE_PASSWORD: ${{ inputs.pypi_token }}
+    run: |
+      pip3 install twine
+      twine upload --skip-existing --verbose dist/*.whl
+    shell: bash
