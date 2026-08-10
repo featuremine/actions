@@ -71,11 +71,44 @@ runs:
       echo "$RUNNER_TEMP/pandoc-2.19.2/bin" >> $GITHUB_PATH
     shell: bash
 
+  - name: Normalize workspace path
+    if: runner.os == 'Windows'
+    run: |
+      PATH_WITH_BACKSLASHES="${{ github.workspace }}"
+      PATH_WITH_SLASHES="${PATH_WITH_BACKSLASHES//\\//}"
+      echo "workspace=${PATH_WITH_SLASHES}" >> $GITHUB_ENV
+    shell: bash
+  
+  - name: Copy workspace path
+    if: runner.os != 'Windows'
+    run: |
+      PATH_WITH_SLASHES="${{ github.workspace }}"
+      echo "workspace=${PATH_WITH_SLASHES}" >> $GITHUB_ENV
+    shell: bash
+
   - name: Configure ${{ github.event.repository.name }} CMake
+    if: runner.os == 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
     run: >
-      cmake -B ${{github.workspace}}/build
+      cmake -B ${{ env.workspace }}/build
+      -A x64
+      -DBUILD_TESTING=ON
+      -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DBUILD_DOCUMENTATION_FORCE=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
+      -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+      -DOPENSSL_ROOT_DIR='C:/Program Files/OpenSSL'
+      ${{ inputs.extra_options }}
+    shell: bash
+
+  - name: Configure ${{ github.event.repository.name }} CMake
+    if: runner.os != 'Windows'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: >
+      cmake -B ${{env.workspace}}/build 
       -DBUILD_TESTING=ON
       -DBUILD_WHEEL=$(if [[ ${{ inputs.wheel }} == 'true' ]]; then echo ON; else echo OFF; fi)
       -DBUILD_API_DOCS=$(if [[ ${{ inputs.docs }} == 'true' ]]; then echo ON; else echo OFF; fi)
@@ -87,15 +120,23 @@ runs:
     shell: bash
     
   - name: Build ${{ github.event.repository.name }}
+    if: runner.os == 'Windows'
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: cmake --build ${{github.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
+    run: cmake --build ${{env.workspace}}/build --config ${{ inputs.build_type }} -- -maxcpucount:${{ inputs.jobs }}
+    shell: bash
+
+  - name: Build ${{ github.event.repository.name }}
+    if: runner.os != 'Windows'
+    env:
+      GH_TOKEN: ${{ inputs.gh_token }}
+    run: cmake --build ${{env.workspace}}/build --config ${{ inputs.build_type }} -- -j${{ inputs.jobs }}
     shell: bash
 
   - name: Test ${{ github.event.repository.name }} with ctest
     env:
       GH_TOKEN: ${{ inputs.gh_token }}
-    run: cd ${{github.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
+    run: cd ${{env.workspace}}/build && ctest --extra-verbose -C ${{ inputs.build_type }}
     shell: bash
 
   - name: Fix permissions for repository directory
@@ -110,12 +151,12 @@ runs:
 
   - name: Publish to testpypi
     if: inputs.test_pypi_token != '' && inputs.upload == 'true'
-    run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} ${{github.workspace}}/build/output/*.whl
+    run: twine upload --skip-existing -r testpypi -u __token__ -p ${{ inputs.test_pypi_token }} ${{env.workspace}}/build/output/*.whl
     shell: bash
 
   - name: Build system package ${{ inputs.cpack }}
     if: inputs.cpack != '' && inputs.upload == 'true'
-    run: cd ${{github.workspace}}/build && cpack -G ${{ inputs.cpack }}
+    run: cd ${{env.workspace}}/build && cpack -G ${{ inputs.cpack }}
     shell: bash
   
   - uses: nick-fields/retry@v2
@@ -128,11 +169,12 @@ runs:
       max_attempts: 5
       retry_wait_seconds: 1
       command: >
-        for PKG in $(ls ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
-                        ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
-                        ${{github.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
+        for PKG in $(ls ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).tar.gz
+                        ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).deb
+                        ${{env.workspace}}/build/${{ github.event.repository.name }}-$(cat VERSION)-$(uname -s)-$(uname -m).rpm 2>/dev/null);
           do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
+      shell: bash
 
   - uses: nick-fields/retry@v2
     name: Upload output files
@@ -144,6 +186,7 @@ runs:
       max_attempts: 5
       retry_wait_seconds: 1
       command: >
-        for PKG in $(ls ${{github.workspace}}/build/output/* 2>/dev/null);
+        for PKG in $(ls ${{env.workspace}}/build/output/* 2>/dev/null);
           do gh release upload v$(cat VERSION) ${PKG} --clobber || exit 1;
         done; 
+      shell: bash
