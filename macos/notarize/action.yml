@@ -1,0 +1,46 @@
+name: Notarize macOS installer
+description: Submit one signed PKG to Apple, require acceptance, staple and assess it, and retain diagnostics
+inputs:
+  directory:
+    description: Directory containing exactly one signed PKG (stapled in place)
+    required: true
+  apple-id:
+    description: Apple account email
+    required: true
+  app-password:
+    description: Apple app-specific password
+    required: true
+  team-id:
+    description: Apple developer team ID matching the signing certificates
+    required: true
+  timeout:
+    description: Maximum time notarytool waits for acceptance
+    default: '60m'
+  diagnostics:
+    description: Directory for submission responses and Apple logs
+    default: notarization-diagnostics
+  diagnostics-artifact:
+    description: Unique artifact name; use different names for multiple invocations in one job
+    default: macos-notarization-diagnostics-${{ github.job }}-${{ github.run_attempt }}
+runs:
+  using: composite
+  steps:
+    - name: Submit, staple, and assess
+      shell: bash
+      env:
+        MACOS_NOTARY_APPLE_ID: ${{ inputs.apple-id }}
+        MACOS_NOTARY_APP_PASSWORD: ${{ inputs.app-password }}
+        MACOS_NOTARY_TEAM_ID: ${{ inputs.team-id }}
+        PACKAGE_DIRECTORY: ${{ inputs.directory }}
+        NOTARY_TIMEOUT: ${{ inputs.timeout }}
+        NOTARY_DIAGNOSTICS: ${{ inputs.diagnostics }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: bash "$ACTION_PATH/notarize.sh"
+    - name: Upload notarization diagnostics
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.diagnostics-artifact }}
+        path: ${{ inputs.diagnostics }}/
+        if-no-files-found: ignore
+        retention-days: 14

@@ -1,0 +1,23 @@
+name: Set up macOS signing
+description: Import Developer ID identities into a temporary keychain with automatic job-end cleanup
+inputs:
+  certificates-p12-base64:
+    description: Base64-encoded P12 containing the Developer ID certificates and private keys
+    required: true
+  certificates-password:
+    description: Password protecting the P12
+    required: true
+  application-identity:
+    description: Exact Developer ID Application identity name
+    required: true
+  installer-identity:
+    description: Exact Developer ID Installer identity name
+    required: true
+outputs:
+  keychain:
+    description: Temporary signing keychain path, valid until the job ends
+runs:
+  using: node24
+  main: index.js
+  post: cleanup.js
+  post-if: always()

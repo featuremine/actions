@@ -1,6 +1,11 @@
 # actions
 common Featuremine github actions
 
+## macOS signing and notarization
+
+See the [macOS actions guide](macos/README.md) for reusable Developer ID signing
+setup, Apple notarization, organization configuration, and usage examples.
+
 ## building containers
 
 Building container with inline cache
